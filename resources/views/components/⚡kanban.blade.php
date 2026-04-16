@@ -214,11 +214,11 @@ new #[Layout('layouts.app')] class extends Component {
         $id = $this->projectId ?? 0;
         return [
             // Presence: online users tracking
-            'echo-presence:project.' . $id . '.kanban,here'    => 'hereUsers',
-            'echo-presence:project.' . $id . '.kanban,joining' => 'userJoined',
-            'echo-presence:project.' . $id . '.kanban,leaving' => 'userLeft',
+            'echo-presence:project.' . $id . '.kanban,here'     => 'hereUsers',
+            'echo-presence:project.' . $id . '.kanban,joining'  => 'userJoined',
+            'echo-presence:project.' . $id . '.kanban,leaving'  => 'userLeft',
             // Public channel: no auth needed, fires reliably for everyone
-            'echo:project.' . $id . '.public,kanban.updated'   => 'loadColumns',
+            'echo:project.' . $id . '.public,.kanban.updated'   => 'loadColumns',
         ];
     }
 

@@ -119,23 +119,82 @@ body {
     font-family: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
-/* Code block */
+/* Code block — lowlight / highlight.js themed */
 .ProseMirror pre {
-    background: #0f172a;
-    color: #e2e8f0;
+    position: relative;
+    background: #161b22;
+    color: #c9d1d9;           /* default token text — bright enough on dark bg */
     padding: 1rem 1.25rem;
     border-radius: 0.75rem;
     overflow-x: auto;
     margin-bottom: 0.6rem;
     font-size: 0.85rem;
-    line-height: 1.6;
+    line-height: 1.7;
+}
+/* Language label badge */
+.ProseMirror pre::before {
+    content: attr(data-language);
+    position: absolute;
+    top: 0.4rem;
+    right: 0.75rem;
+    font-size: 0.65rem;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    color: #58a6ff;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    pointer-events: none;
 }
 .ProseMirror pre code {
     background: transparent;
     padding: 0;
     font-size: inherit;
-    color: inherit;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
 }
+
+/* ── Syntax token colors (high-contrast, tested on #161b22) ── */
+
+/* Keywords: if, for, return, import, export, const, let, var … */
+.ProseMirror pre .hljs-keyword        { color: #ff7b72; font-weight: 600; }
+/* Built-ins: console, Math, Promise, print … */
+.ProseMirror pre .hljs-built_in       { color: #ffa657; }
+/* Strings & template literals */
+.ProseMirror pre .hljs-string,
+.ProseMirror pre .hljs-template-tag,
+.ProseMirror pre .hljs-template-variable { color: #a5d6ff; }
+/* Numbers, booleans, null, undefined */
+.ProseMirror pre .hljs-number,
+.ProseMirror pre .hljs-literal        { color: #79c0ff; }
+/* Comments — raised from #8b949e to pass contrast check */
+.ProseMirror pre .hljs-comment        { color: #b1bac4; font-style: italic; }
+/* Variables, object keys */
+.ProseMirror pre .hljs-variable,
+.ProseMirror pre .hljs-name           { color: #e6edf3; }
+/* Attributes, params */
+.ProseMirror pre .hljs-attr,
+.ProseMirror pre .hljs-params         { color: #ffa657; }
+/* Function / method names */
+.ProseMirror pre .hljs-title,
+.ProseMirror pre .hljs-title.class_,
+.ProseMirror pre .hljs-title.function_ { color: #d2a8ff; font-weight: 600; }
+/* Types, class names */
+.ProseMirror pre .hljs-type,
+.ProseMirror pre .hljs-class          { color: #ffa657; }
+/* HTML/JSX tags */
+.ProseMirror pre .hljs-tag            { color: #7ee787; }
+/* Attribute names inside tags */
+.ProseMirror pre .hljs-attribute      { color: #79c0ff; }
+/* Operators: +, -, =, =>, … */
+.ProseMirror pre .hljs-operator       { color: #ff7b72; }
+/* Punctuation — slightly brighter than default */
+.ProseMirror pre .hljs-punctuation    { color: #c9d1d9; }
+/* Symbols / meta (#include, @decorator, $variable) */
+.ProseMirror pre .hljs-meta,
+.ProseMirror pre .hljs-symbol         { color: #e3b341; }
+/* Deletion / addition (diff) */
+.ProseMirror pre .hljs-deletion       { color: #ffa198; background: #3d1f1e; }
+.ProseMirror pre .hljs-addition       { color: #7ee787; background: #1b3a24; }
+/* Regexp */
+.ProseMirror pre .hljs-regexp         { color: #a5d6ff; }
 
 /* Blockquote */
 .ProseMirror blockquote {

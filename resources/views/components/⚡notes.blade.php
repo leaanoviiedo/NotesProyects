@@ -4,6 +4,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use App\Models\Project;
 use App\Models\Note;
+use App\Events\NoteUpdated;
 
 new #[Layout('layouts.app')] class extends Component {
     #[Url(as: 'projectId')]
@@ -20,6 +21,12 @@ new #[Layout('layouts.app')] class extends Component {
     public string $noteCategory = '';
     public bool $noteIsPinned = false;
     public bool $isEditing = false;
+
+    // Real-time collaboration
+    public array $onlineUsers = [];
+    public array $focusMap = [];      // [(string)userId => noteId] — who's editing which note
+    public int   $editorContentVersion = 0; // increments to tell JS to reload editor
+    public string $collabNotice = '';       // shown when a collaborator updates your active note
 
     public function mount(): void
     {
@@ -56,6 +63,8 @@ new #[Layout('layouts.app')] class extends Component {
     {
         $this->activeNoteId = null;
         $this->isEditing = false;
+        $this->collabNotice = '';
+        $this->focusMap = [];
         $this->loadNotes();
     }
 
@@ -83,6 +92,8 @@ new #[Layout('layouts.app')] class extends Component {
         $this->noteCategory = '';
         $this->noteIsPinned = false;
         $this->isEditing = true;
+        $this->collabNotice = '';
+        $this->editorContentVersion++;
     }
 
     public function selectNote(int $id): void
@@ -94,6 +105,12 @@ new #[Layout('layouts.app')] class extends Component {
         $this->noteCategory = $note->category ?? '';
         $this->noteIsPinned = $note->is_pinned;
         $this->isEditing = true;
+        $this->collabNotice = '';
+        $this->editorContentVersion++;
+        // Let collaborators know which note we're editing
+        if ($this->projectId) {
+            broadcast(new NoteUpdated($this->projectId, 'focus', ['note_id' => $id], auth()->id(), auth()->user()->name));
+        }
     }
 
     public function saveNote(): void
@@ -118,6 +135,11 @@ new #[Layout('layouts.app')] class extends Component {
             $this->activeNoteId = $note->id;
         }
         $this->loadNotes();
+        if ($this->projectId && $this->activeNoteId) {
+            broadcast(new NoteUpdated($this->projectId, 'saved', [
+                'note_id' => $this->activeNoteId,
+            ], auth()->id(), auth()->user()->name));
+        }
     }
 
     public function deleteNote(int $id): void
@@ -128,6 +150,9 @@ new #[Layout('layouts.app')] class extends Component {
             $this->isEditing = false;
         }
         $this->loadNotes();
+        if ($this->projectId) {
+            broadcast(new NoteUpdated($this->projectId, 'deleted', ['note_id' => $id], auth()->id(), auth()->user()->name));
+        }
     }
 
     public function togglePin(int $id): void
@@ -136,6 +161,58 @@ new #[Layout('layouts.app')] class extends Component {
         $note->update(['is_pinned' => !$note->is_pinned]);
         if ($this->activeNoteId === $id) $this->noteIsPinned = !$this->noteIsPinned;
         $this->loadNotes();
+    }
+
+    // ── Real-time ──────────────────────────────────────────────────────────────
+
+    public function getListeners(): array
+    {
+        $id = $this->projectId ?? 0;
+        return [
+            'echo-presence:project.' . $id . '.notes,here'    => 'hereUsers',
+            'echo-presence:project.' . $id . '.notes,joining' => 'userJoined',
+            'echo-presence:project.' . $id . '.notes,leaving' => 'userLeft',
+            'echo:project.' . $id . '.public,.note.updated'   => 'onNoteUpdated',
+        ];
+    }
+
+    public function hereUsers(array $users): void { $this->onlineUsers = $users; }
+    public function userJoined(array $user): void { $this->onlineUsers[] = $user; }
+    public function userLeft(array $user): void
+    {
+        $this->onlineUsers = array_values(array_filter($this->onlineUsers, fn($u) => $u['id'] !== $user['id']));
+        unset($this->focusMap[(string) $user['id']]);
+    }
+
+    public function onNoteUpdated(array $event): void
+    {
+        $action     = $event['action'] ?? '';
+        $payload    = $event['payload'] ?? [];
+        $senderId   = (int) ($event['userId'] ?? 0);
+        $senderName = $event['userName'] ?? 'Someone';
+
+        // Ignore own events (same user, possibly another tab)
+        if ($senderId === auth()->id()) return;
+
+        // Track which note each collaborator has open
+        if ($action === 'focus') {
+            $this->focusMap[(string) $senderId] = (int) ($payload['note_id'] ?? 0);
+            return;
+        }
+
+        // Refresh note list for create / save / delete events
+        $this->loadNotes();
+
+        // If the collaborator saved the very note we have open, reload its content
+        if ($action === 'saved' && !empty($payload['note_id']) && (int) $payload['note_id'] === $this->activeNoteId) {
+            $note = Note::find($this->activeNoteId);
+            if ($note) {
+                $this->noteContent    = $note->content ?? '';
+                $this->noteTitle      = $note->title;
+                $this->collabNotice   = $senderName . ' updated this note';
+                $this->editorContentVersion++;
+            }
+        }
     }
 };
 ?>
@@ -151,6 +228,18 @@ new #[Layout('layouts.app')] class extends Component {
             </option>
             @endforeach
         </select>
+        {{-- Online collaborators --}}
+        @if(count($onlineUsers) > 0)
+        <div class="flex items-center gap-1.5">
+            <span class="text-xs text-on-surface-variant">Online:</span>
+            <div class="flex -space-x-1.5">
+                @foreach($onlineUsers as $u)
+                <span class="w-6 h-6 rounded-full bg-primary text-on-primary text-[9px] font-bold flex items-center justify-center border-2 border-surface cursor-default"
+                      title="{{ $u['name'] }}">{{ $u['initials'] ?? '' }}</span>
+                @endforeach
+            </div>
+        </div>
+        @endif
         {{-- Mobile panel toggle --}}
         <div class="md:hidden flex gap-2 ml-auto">
             <button @click="mobilePanel = 'list'"
@@ -186,6 +275,11 @@ new #[Layout('layouts.app')] class extends Component {
             {{-- Note list --}}
             <div class="flex-1 overflow-y-auto">
                 @forelse($notes as $note)
+                @php
+                    $noteEditors = collect($onlineUsers)->filter(
+                        fn($u) => isset($focusMap[(string)$u['id']]) && $focusMap[(string)$u['id']] === $note['id']
+                    );
+                @endphp
                 <button wire:click="selectNote({{ $note['id'] }})" @click="mobilePanel = 'editor'"
                     class="w-full text-left px-4 py-3 border-b border-outline-variant/20 hover:bg-surface-container-high transition
                         {{ $activeNoteId === $note['id'] ? 'bg-primary/5 border-l-2 border-l-primary' : '' }}">
@@ -207,6 +301,15 @@ new #[Layout('layouts.app')] class extends Component {
                                 </span>
                             </div>
                         </div>
+                        {{-- Collaborator editing indicators --}}
+                        @if($noteEditors->isNotEmpty())
+                        <div class="flex -space-x-1 shrink-0 mt-0.5">
+                            @foreach($noteEditors as $u)
+                            <span class="w-4 h-4 rounded-full bg-tertiary text-on-tertiary text-[8px] font-bold flex items-center justify-center border border-surface"
+                                  title="{{ $u['name'] }} is editing">{{ $u['initials'] ?? '' }}</span>
+                            @endforeach
+                        </div>
+                        @endif
                     </div>
                 </button>
                 @empty
@@ -223,6 +326,18 @@ new #[Layout('layouts.app')] class extends Component {
         <main class="flex-1 flex flex-col min-w-0"
             :class="mobilePanel === 'editor' ? 'flex' : 'hidden md:flex'">
             @if($isEditing)
+            {{-- Collab notice: shown when a collaborator saves the note you have open --}}
+            @if($collabNotice)
+            <div class="flex items-center justify-between px-4 py-2 bg-amber-500/10 text-amber-700 dark:text-amber-400 text-xs border-b border-amber-500/20 shrink-0">
+                <span class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">sync</span>
+                    {{ $collabNotice }}
+                </span>
+                <button wire:click="$set('collabNotice','')" class="text-amber-600/70 hover:text-amber-600">
+                    <span class="material-symbols-outlined text-sm">close</span>
+                </button>
+            </div>
+            @endif
             <div class="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-outline-variant/30 shrink-0 gap-3">
                 <input wire:model.blur="noteTitle" type="text" placeholder="Note title..."
                     class="flex-1 text-lg font-bold bg-transparent border-none focus:outline-none text-on-background placeholder:text-on-surface-variant/40" />
@@ -259,35 +374,35 @@ new #[Layout('layouts.app')] class extends Component {
                 {{-- Toolbar --}}
                 <div class="flex flex-wrap items-center gap-0.5 px-3 py-1.5 border-b border-outline-variant/20 bg-surface-container/50 shrink-0">
                     {{-- Headings --}}
-                    <button @click.prevent="run(c => c.toggleHeading({ level: 1 }).run())"
+                    <button @mousedown.prevent="run(c => c.toggleHeading({ level: 1 }))"
                         :class="active.h1 ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container-high'"
                         class="px-2 py-1 rounded text-xs font-bold transition" title="Heading 1">H1</button>
-                    <button @click.prevent="run(c => c.toggleHeading({ level: 2 }).run())"
+                    <button @mousedown.prevent="run(c => c.toggleHeading({ level: 2 }))"
                         :class="active.h2 ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container-high'"
                         class="px-2 py-1 rounded text-xs font-bold transition" title="Heading 2">H2</button>
-                    <button @click.prevent="run(c => c.toggleHeading({ level: 3 }).run())"
+                    <button @mousedown.prevent="run(c => c.toggleHeading({ level: 3 }))"
                         :class="active.h3 ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container-high'"
                         class="px-2 py-1 rounded text-xs font-bold transition" title="Heading 3">H3</button>
 
                     <span class="w-px h-4 bg-outline-variant mx-1"></span>
 
                     {{-- Inline formatting --}}
-                    <button @click.prevent="run(c => c.toggleBold().run())"
+                    <button @mousedown.prevent="run(c => c.toggleBold())"
                         :class="active.bold ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container-high'"
                         class="p-1.5 rounded transition" title="Bold">
                         <span class="material-symbols-outlined text-sm">format_bold</span>
                     </button>
-                    <button @click.prevent="run(c => c.toggleItalic().run())"
+                    <button @mousedown.prevent="run(c => c.toggleItalic())"
                         :class="active.italic ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container-high'"
                         class="p-1.5 rounded transition" title="Italic">
                         <span class="material-symbols-outlined text-sm">format_italic</span>
                     </button>
-                    <button @click.prevent="run(c => c.toggleStrike().run())"
+                    <button @mousedown.prevent="run(c => c.toggleStrike())"
                         :class="active.strike ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container-high'"
                         class="p-1.5 rounded transition" title="Strikethrough">
                         <span class="material-symbols-outlined text-sm">strikethrough_s</span>
                     </button>
-                    <button @click.prevent="run(c => c.toggleCode().run())"
+                    <button @mousedown.prevent="run(c => c.toggleCode())"
                         :class="active.code ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container-high'"
                         class="p-1.5 rounded transition" title="Inline Code">
                         <span class="material-symbols-outlined text-sm">code</span>
@@ -296,22 +411,22 @@ new #[Layout('layouts.app')] class extends Component {
                     <span class="w-px h-4 bg-outline-variant mx-1"></span>
 
                     {{-- Lists --}}
-                    <button @click.prevent="run(c => c.toggleBulletList().run())"
+                    <button @mousedown.prevent="run(c => c.toggleBulletList())"
                         :class="active.bulletList ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container-high'"
                         class="p-1.5 rounded transition" title="Bullet List">
                         <span class="material-symbols-outlined text-sm">format_list_bulleted</span>
                     </button>
-                    <button @click.prevent="run(c => c.toggleOrderedList().run())"
+                    <button @mousedown.prevent="run(c => c.toggleOrderedList())"
                         :class="active.orderedList ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container-high'"
                         class="p-1.5 rounded transition" title="Ordered List">
                         <span class="material-symbols-outlined text-sm">format_list_numbered</span>
                     </button>
-                    <button @click.prevent="run(c => c.toggleBlockquote().run())"
+                    <button @mousedown.prevent="run(c => c.toggleBlockquote())"
                         :class="active.blockquote ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container-high'"
                         class="p-1.5 rounded transition" title="Blockquote">
                         <span class="material-symbols-outlined text-sm">format_quote</span>
                     </button>
-                    <button @click.prevent="run(c => c.toggleCodeBlock().run())"
+                    <button @mousedown.prevent="run(c => c.toggleCodeBlock())"
                         :class="active.codeBlock ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container-high'"
                         class="p-1.5 rounded transition" title="Code Block">
                         <span class="material-symbols-outlined text-sm">data_object</span>
@@ -320,15 +435,15 @@ new #[Layout('layouts.app')] class extends Component {
                     <span class="w-px h-4 bg-outline-variant mx-1"></span>
 
                     {{-- History --}}
-                    <button @click.prevent="run(c => c.undo().run())"
+                    <button @mousedown.prevent="run(c => c.undo())"
                         class="p-1.5 rounded text-on-surface-variant hover:bg-surface-container-high transition" title="Undo">
                         <span class="material-symbols-outlined text-sm">undo</span>
                     </button>
-                    <button @click.prevent="run(c => c.redo().run())"
+                    <button @mousedown.prevent="run(c => c.redo())"
                         class="p-1.5 rounded text-on-surface-variant hover:bg-surface-container-high transition" title="Redo">
                         <span class="material-symbols-outlined text-sm">redo</span>
                     </button>
-                    <button @click.prevent="run(c => c.setHorizontalRule().run())"
+                    <button @mousedown.prevent="run(c => c.setHorizontalRule())"
                         class="p-1.5 rounded text-on-surface-variant hover:bg-surface-container-high transition" title="Horizontal Rule">
                         <span class="material-symbols-outlined text-sm">horizontal_rule</span>
                     </button>

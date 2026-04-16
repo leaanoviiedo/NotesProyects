@@ -129,8 +129,8 @@ new #[Layout('layouts.share')] class extends Component {
     {
         $projectId = $this->project['id'] ?? 0;
         return [
-            "echo:project.{$projectId}.public,kanban.updated" => 'loadContent',
-            "echo:project.{$projectId}.public,note.updated"   => 'loadContent',
+            "echo:project.{$projectId}.public,.kanban.updated" => 'loadContent',
+            "echo:project.{$projectId}.public,.note.updated"   => 'loadContent',
         ];
     }
 };
