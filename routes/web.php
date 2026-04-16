@@ -27,6 +27,7 @@ Route::middleware('auth')->group(function () {
     Route::livewire('/projects', 'projects.index')->name('projects');
     Route::livewire('/projects/{project}/members', 'projects.members')->name('projects.members');
     Route::livewire('/projects/{project}/share', 'projects.share')->name('projects.share');
+    Route::livewire('/api-tester', 'api-tester')->name('api-tester');
     // Google Calendar OAuth
     Route::get('/auth/google/calendar', [GoogleCalendarController::class, 'redirect'])->name('google.calendar.redirect');
     Route::get('/auth/google/callback', [GoogleCalendarController::class, 'callback'])->name('google.calendar.callback');

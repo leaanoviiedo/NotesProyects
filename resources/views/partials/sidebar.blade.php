@@ -186,6 +186,17 @@
             <span class="material-symbols-outlined text-xl shrink-0 {{ request()->routeIs('calendar') ? 'text-indigo-400' : 'text-slate-500' }}">calendar_month</span>
             <span class="text-sm">Calendar</span>
         </a>
+
+        {{-- ---- TOOLS section ---- --}}
+        <div class="pt-4 pb-1.5 px-3">
+            <span class="text-slate-600 font-label text-[10px] uppercase tracking-widest">Tools</span>
+        </div>
+        <a href="{{ route('api-tester') }}"
+           @click="sidebarOpen = false"
+           class="flex items-center gap-3 px-3 py-2 rounded-xl {{ request()->routeIs('api-tester') ? 'text-white font-semibold bg-indigo-600/20' : 'text-slate-400 font-medium' }} hover:bg-slate-800 transition-colors">
+            <span class="material-symbols-outlined text-xl shrink-0 {{ request()->routeIs('api-tester') ? 'text-indigo-400' : 'text-slate-500' }}">api</span>
+            <span class="text-sm">API Tester</span>
+        </a>
     </nav>
 
     {{-- Footer --}}

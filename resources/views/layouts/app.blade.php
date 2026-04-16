@@ -69,6 +69,10 @@
                        class="px-3 lg:px-4 h-16 flex items-center text-sm font-medium hover:text-slate-900 transition-all {{ request()->routeIs('calendar') ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500' }}">
                         Calendar
                     </a>
+                    <a href="{{ route('api-tester') }}"
+                       class="px-3 lg:px-4 h-16 flex items-center gap-1 text-sm font-medium hover:text-slate-900 transition-all whitespace-nowrap {{ request()->routeIs('api-tester') ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500' }}">
+                        <span class="material-symbols-outlined text-base">api</span> API
+                    </a>
                 </nav>
 
                 {{-- Current page label (mobile) --}}
@@ -76,6 +80,7 @@
                     @if(request()->routeIs('kanban')) Kanban
                     @elseif(request()->routeIs('notes')) Notes
                     @elseif(request()->routeIs('calendar')) Calendar
+                    @elseif(request()->routeIs('api-tester')) API Tester
                     @else DevOS Pro
                     @endif
                 </span>
@@ -125,6 +130,11 @@
                class="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 {{ request()->routeIs('calendar') ? 'text-indigo-600' : 'text-slate-400' }}">
                 <span class="material-symbols-outlined text-xl">calendar_month</span>
                 <span class="text-[10px] font-medium">Calendar</span>
+            </a>
+            <a href="{{ route('api-tester') }}"
+               class="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 {{ request()->routeIs('api-tester') ? 'text-indigo-600' : 'text-slate-400' }}">
+                <span class="material-symbols-outlined text-xl">api</span>
+                <span class="text-[10px] font-medium">API</span>
             </a>
         </nav>
 
