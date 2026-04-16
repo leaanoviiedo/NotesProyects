@@ -203,6 +203,12 @@
             <span class="material-symbols-outlined text-xl shrink-0 {{ request()->routeIs('logs') ? 'text-indigo-400' : 'text-slate-500' }}">terminal</span>
             <span class="text-sm">Log Console</span>
         </a>
+        <a href="{{ route('snippets') }}"
+           @click="sidebarOpen = false"
+           class="flex items-center gap-3 px-3 py-2 rounded-xl {{ request()->routeIs('snippets') ? 'text-white font-semibold bg-indigo-600/20' : 'text-slate-400 font-medium' }} hover:bg-slate-800 transition-colors">
+            <span class="material-symbols-outlined text-xl shrink-0 {{ request()->routeIs('snippets') ? 'text-indigo-400' : 'text-slate-500' }}">code_blocks</span>
+            <span class="text-sm">Snippets</span>
+        </a>
     </nav>
 
     {{-- Footer --}}

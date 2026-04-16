@@ -6,6 +6,7 @@
     <title>{{ $title ?? config('app.name') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
+    @stack('head')
 </head>
 <body class="bg-background text-on-background overflow-hidden">
 
@@ -77,6 +78,10 @@
                        class="px-3 lg:px-4 h-16 flex items-center gap-1 text-sm font-medium hover:text-slate-900 transition-all whitespace-nowrap {{ request()->routeIs('logs') ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500' }}">
                         <span class="material-symbols-outlined text-base">terminal</span> Logs
                     </a>
+                    <a href="{{ route('snippets') }}"
+                       class="px-3 lg:px-4 h-16 flex items-center gap-1 text-sm font-medium hover:text-slate-900 transition-all whitespace-nowrap {{ request()->routeIs('snippets') ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500' }}">
+                        <span class="material-symbols-outlined text-base">code_blocks</span> Snippets
+                    </a>
                 </nav>
 
                 {{-- Current page label (mobile) --}}
@@ -86,6 +91,7 @@
                     @elseif(request()->routeIs('calendar')) Calendar
                     @elseif(request()->routeIs('api-tester')) API Tester
                     @elseif(request()->routeIs('logs')) Log Console
+                    @elseif(request()->routeIs('snippets')) Snippets
                     @else DevOS Pro
                     @endif
                 </span>
@@ -145,6 +151,11 @@
                class="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 {{ request()->routeIs('logs') ? 'text-indigo-600' : 'text-slate-400' }}">
                 <span class="material-symbols-outlined text-xl">terminal</span>
                 <span class="text-[10px] font-medium">Logs</span>
+            </a>
+            <a href="{{ route('snippets') }}"
+               class="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 {{ request()->routeIs('snippets') ? 'text-indigo-600' : 'text-slate-400' }}">
+                <span class="material-symbols-outlined text-xl">code_blocks</span>
+                <span class="text-[10px] font-medium">Snippets</span>
             </a>
         </nav>
 

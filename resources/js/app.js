@@ -263,5 +263,55 @@ document.addEventListener('alpine:init', () => {
             },
         };
     });
+
+    // ── Snippet Library sandbox runner ──────────────────────────────────────────
+    Alpine.data('snippetPage', () => ({
+        running: false,
+        outputVisible: false,
+        runOutput: { stdout: '', stderr: '', exitCode: null, wall_time: null },
+
+        runnableLangs: ['php', 'go', 'javascript', 'typescript', 'python', 'bash'],
+
+        init() {},
+
+        async runSandbox(snippet) {
+            if (!snippet || this.running) return;
+            if (!this.runnableLangs.includes(snippet.language)) return;
+
+            this.running = true;
+            this.outputVisible = true;
+            this.runOutput = { stdout: '', stderr: '', exitCode: null, wall_time: null };
+
+            try {
+                // Executes locally on the server via PHP proc_open
+                await this.$wire.runCode();
+
+                const r = this.$wire.runResult;
+                this.runOutput = {
+                    stdout:    r.stdout    ?? '',
+                    stderr:    r.stderr    ?? '',
+                    exitCode:  r.exit_code ?? null,
+                    wall_time: r.wall_time ?? null,
+                };
+            } catch (e) {
+                this.runOutput = { stdout: '', stderr: 'Error: ' + e.message, exitCode: -1, wall_time: null };
+            } finally {
+                this.running = false;
+            }
+        },
+
+        clearOutput() {
+            this.outputVisible = false;
+            this.runOutput = { stdout: '', stderr: '', exitCode: null, wall_time: null };
+        },
+
+        downloadFile(filename, content) {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([content], { type: 'text/plain' }));
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(a.href);
+        },
+    }));
 });
 
