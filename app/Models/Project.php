@@ -9,9 +9,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Project extends Model
 {
-    protected $fillable = ['name', 'description', 'color', 'icon', 'owner_id', 'is_archived', 'is_personal', 'is_favorite'];
+    protected $fillable = ['name', 'description', 'color', 'icon', 'owner_id', 'is_archived', 'is_personal', 'is_favorite', 'links'];
 
-    protected $casts = ['is_archived' => 'boolean', 'is_personal' => 'boolean', 'is_favorite' => 'boolean'];
+    protected $casts = ['is_archived' => 'boolean', 'is_personal' => 'boolean', 'is_favorite' => 'boolean', 'links' => 'array'];
 
     public function owner(): BelongsTo
     {

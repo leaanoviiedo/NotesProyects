@@ -7,12 +7,22 @@ use App\Models\ActivityLog;
 new #[Layout('layouts.app')] class extends Component {
     public $projects;
     public bool $showModal = false;
+    public ?int $editingId  = null;   // null = create, int = edit
     public string $name = '';
     public string $description = '';
     public string $color = '#3525cd';
     public string $icon = 'folder';
+    public array  $links = [];        // [{label, url}]
+    public string $newLinkLabel = '';
+    public string $newLinkUrl   = '';
 
-    protected $rules = ['name' => 'required|string|max:255', 'description' => 'nullable|string', 'color' => 'required', 'icon' => 'nullable|string|max:50'];
+    protected $rules = [
+        'name'        => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'color'       => 'required',
+        'icon'        => 'nullable|string|max:50',
+        'links.*.url' => 'nullable|url',
+    ];
 
     public function mount(): void { $this->loadProjects(); }
 
@@ -30,26 +40,67 @@ new #[Layout('layouts.app')] class extends Component {
             ->get();
     }
 
+    public function openCreate(): void {
+        $this->reset(['name','description','icon','links','newLinkLabel','newLinkUrl','editingId']);
+        $this->color = '#3525cd';
+        $this->icon  = 'folder';
+        $this->showModal = true;
+    }
+
+    public function openEdit(int $id): void {
+        $project = Project::where('owner_id', auth()->id())->findOrFail($id);
+        $this->editingId   = $id;
+        $this->name        = $project->name;
+        $this->description = $project->description ?? '';
+        $this->color       = $project->color;
+        $this->icon        = $project->icon;
+        $this->links       = $project->links ?? [];
+        $this->showModal   = true;
+    }
+
+    public function addLink(): void {
+        $url = trim($this->newLinkUrl);
+        $label = trim($this->newLinkLabel) ?: parse_url($url, PHP_URL_HOST);
+        if (filter_var($url, FILTER_VALIDATE_URL)) {
+            $this->links[] = ['label' => $label, 'url' => $url];
+        }
+        $this->newLinkLabel = '';
+        $this->newLinkUrl   = '';
+    }
+
+    public function removeLink(int $index): void {
+        array_splice($this->links, $index, 1);
+    }
+
     public function toggleFavorite(int $id): void {
         $project = Project::where('owner_id', auth()->id())->findOrFail($id);
         $project->update(['is_favorite' => !$project->is_favorite]);
         $this->loadProjects();
     }
 
-    public function createProject(): void {
+    public function saveProject(): void {
         $this->validate();
-        $project = Project::create([
-            'name' => $this->name,
+        $data = [
+            'name'        => $this->name,
             'description' => $this->description,
-            'color' => $this->color,
-            'icon' => $this->icon,
-            'owner_id' => auth()->id(),
-        ]);
-        ActivityLog::record('project_created', 'Created project "' . $project->name . '"', $project);
-        $this->reset(['name','description','color','icon','showModal']);
-        $this->color = '#3525cd';
+            'color'       => $this->color,
+            'icon'        => $this->icon,
+            'links'       => empty($this->links) ? null : array_values($this->links),
+        ];
+        if ($this->editingId) {
+            $project = Project::where('owner_id', auth()->id())->findOrFail($this->editingId);
+            $project->update($data);
+            ActivityLog::record('project_updated', 'Updated project "' . $project->name . '"', $project);
+        } else {
+            $project = Project::create(array_merge($data, ['owner_id' => auth()->id()]));
+            ActivityLog::record('project_created', 'Created project "' . $project->name . '"', $project);
+        }
+        $this->showModal = false;
         $this->loadProjects();
     }
+
+    // Keep old name for backward compat (sidebar new-project button calls createProject)
+    public function createProject(): void { $this->saveProject(); }
 
     public function archiveProject(int $id): void {
         $project = Project::where('owner_id', auth()->id())->findOrFail($id);
@@ -67,7 +118,7 @@ new #[Layout('layouts.app')] class extends Component {
 <div class="p-4 md:p-6 space-y-6">
     <div class="flex items-center justify-between">
         <h1 class="text-xl font-bold text-on-background">Projects</h1>
-        <button wire:click="$set('showModal', true)"
+        <button wire:click="openCreate"
             class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-xl text-sm font-medium hover:bg-primary/90 transition">
             <span class="material-symbols-outlined text-base">add</span> New Project
         </button>
@@ -102,8 +153,13 @@ new #[Layout('layouts.app')] class extends Component {
                     <button @click="open = !open" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-high">
                         <span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
                     </button>
-                    <div x-show="open" @click.outside="open = false" x-cloak
-                        class="absolute right-0 top-9 w-44 bg-surface-container-highest rounded-xl shadow-lg border border-outline-variant/30 py-1 z-10">
+                        <div x-show="open" @click.outside="open = false" x-cloak
+                        class="absolute right-0 top-9 w-48 bg-surface-container-highest rounded-xl shadow-lg border border-outline-variant/30 py-1 z-10">
+                        @if($project->owner_id === auth()->id())
+                        <button wire:click="openEdit({{ $project->id }})" class="flex w-full items-center gap-2 px-4 py-2 text-sm text-on-surface hover:bg-surface-container-high">
+                            <span class="material-symbols-outlined text-sm">edit</span> Edit
+                        </button>
+                        @endif
                         <a href="{{ route('projects.members', $project) }}" wire:navigate class="flex items-center gap-2 px-4 py-2 text-sm text-on-surface hover:bg-surface-container-high">
                             <span class="material-symbols-outlined text-sm">group</span> Members
                         </a>
@@ -123,6 +179,29 @@ new #[Layout('layouts.app')] class extends Component {
                 </div>
             </div>
             <p class="text-sm text-on-surface-variant line-clamp-2">{{ $project->description ?: 'No description.' }}</p>
+            {{-- External links --}}
+            @if(!empty($project->links))
+            <div class="flex flex-wrap gap-1.5">
+                @foreach($project->links as $link)
+                <a href="{{ $link['url'] }}" target="_blank" rel="noopener"
+                   class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-primary hover:bg-primary/10 transition border border-outline-variant/30">
+                    @php
+                        $icon = match(true) {
+                            str_contains($link['url'], 'github.com') => 'code',
+                            str_contains($link['url'], 'figma.com')  => 'design_services',
+                            str_contains($link['url'], 'notion.so')  => 'article',
+                            str_contains($link['url'], 'jira')       => 'bug_report',
+                            str_contains($link['url'], 'linear.app') => 'linear_scale',
+                            str_contains($link['url'], 'slack.com')  => 'forum',
+                            default                                   => $link['icon'] ?? 'link',
+                        };
+                    @endphp
+                    <span class="material-symbols-outlined text-[11px]">{{ $icon }}</span>
+                    {{ $link['label'] }}
+                </a>
+                @endforeach
+            </div>
+            @endif
             <div class="flex items-center gap-4 text-xs text-on-surface-variant mt-auto">
                 <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">view_kanban</span>{{ $project->kanban_cards_count }}</span>
                 <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">notes</span>{{ $project->notes_count }}</span>
@@ -139,9 +218,11 @@ new #[Layout('layouts.app')] class extends Component {
 
     @if($showModal)
     <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" wire:click.self="$set('showModal', false)">
-        <div class="bg-surface-container-lowest rounded-2xl shadow-xl p-6 w-full max-w-md">
-            <h2 class="text-lg font-bold text-on-background mb-4">New Project</h2>
-            <form wire:submit="createProject" class="space-y-4">
+        <div class="bg-surface-container-lowest rounded-2xl shadow-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <h2 class="text-lg font-bold text-on-background mb-4">
+                {{ $editingId ? 'Edit Project' : 'New Project' }}
+            </h2>
+            <form wire:submit="saveProject" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-on-surface mb-1">Name</label>
                     <input wire:model="name" type="text" placeholder="Project name"
@@ -150,7 +231,7 @@ new #[Layout('layouts.app')] class extends Component {
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-on-surface mb-1">Description</label>
-                    <textarea wire:model="description" rows="3" placeholder="Optional description"
+                    <textarea wire:model="description" rows="2" placeholder="Optional description"
                         class="w-full rounded-xl border border-outline-variant bg-surface-container px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"></textarea>
                 </div>
                 <div class="flex gap-4">
@@ -159,16 +240,48 @@ new #[Layout('layouts.app')] class extends Component {
                         <input wire:model="color" type="color" class="w-full h-10 rounded-xl border border-outline-variant cursor-pointer" />
                     </div>
                     <div class="flex-1">
-                        <label class="block text-sm font-medium text-on-surface mb-1">Icon (Material Symbol)</label>
+                        <label class="block text-sm font-medium text-on-surface mb-1">Icon</label>
                         <input wire:model="icon" type="text" placeholder="e.g. folder"
                             class="w-full rounded-xl border border-outline-variant bg-surface-container px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
                     </div>
                 </div>
+
+                {{-- Links --}}
+                <div>
+                    <label class="block text-sm font-medium text-on-surface mb-2">External Links</label>
+                    @if(!empty($links))
+                    <div class="space-y-1.5 mb-2">
+                        @foreach($links as $i => $link)
+                        <div class="flex items-center gap-2 bg-surface-container rounded-xl px-3 py-2">
+                            <span class="material-symbols-outlined text-sm text-on-surface-variant">link</span>
+                            <span class="text-xs font-medium text-on-surface truncate flex-1">{{ $link['label'] }}</span>
+                            <span class="text-xs text-on-surface-variant truncate max-w-[140px]">{{ $link['url'] }}</span>
+                            <button type="button" wire:click="removeLink({{ $i }})" class="text-on-surface-variant hover:text-error shrink-0">
+                                <span class="material-symbols-outlined text-sm">close</span>
+                            </button>
+                        </div>
+                        @endforeach
+                    </div>
+                    @endif
+                    <div class="flex gap-2">
+                        <input wire:model="newLinkLabel" type="text" placeholder="Label (e.g. GitHub)"
+                            class="w-1/3 rounded-xl border border-outline-variant bg-surface-container px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary" />
+                        <input wire:model="newLinkUrl" type="url" placeholder="https://..."
+                            class="flex-1 rounded-xl border border-outline-variant bg-surface-container px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary" />
+                        <button type="button" wire:click="addLink"
+                            class="px-3 py-2 bg-surface-container-high text-on-surface rounded-xl text-xs hover:bg-surface-container-highest transition shrink-0">
+                            <span class="material-symbols-outlined text-sm">add</span>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="flex justify-end gap-3 pt-2">
                     <button type="button" wire:click="$set('showModal', false)"
                         class="px-4 py-2 rounded-xl text-sm text-on-surface hover:bg-surface-container-high">Cancel</button>
                     <button type="submit"
-                        class="px-4 py-2 bg-primary text-on-primary rounded-xl text-sm font-medium hover:bg-primary/90">Create</button>
+                        class="px-4 py-2 bg-primary text-on-primary rounded-xl text-sm font-medium hover:bg-primary/90">
+                        {{ $editingId ? 'Save Changes' : 'Create' }}
+                    </button>
                 </div>
             </form>
         </div>
