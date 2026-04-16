@@ -49,10 +49,9 @@ new #[Layout('layouts.app')] class extends Component {
                 $this->projectId = null;
             }
         }
-        // Default to personal project or first
-        if (!$this->projectId && count($this->projects)) {
-            $personal = collect($this->projects)->firstWhere('is_personal', true);
-            $this->projectId = $personal ? $personal['id'] : $this->projects[0]['id'];
+        // Default to the user's personal project (create it if it doesn't exist yet)
+        if (!$this->projectId) {
+            $this->projectId = auth()->user()->getOrCreatePersonalProject()->id;
         }
         $this->loadColumns();
     }
@@ -134,7 +133,7 @@ new #[Layout('layouts.app')] class extends Component {
         $this->showCardModal = false;
         $this->loadColumns();
         if ($this->projectId) {
-            broadcast(new KanbanUpdated($this->projectId, 'card_added', ['column' => $col->name], auth()->id(), auth()->user()->name))->toOthers();
+            broadcast(new KanbanUpdated($this->projectId, 'card_added', ['column' => $col->name], auth()->id(), auth()->user()->name));
         }
     }
 
@@ -173,7 +172,7 @@ new #[Layout('layouts.app')] class extends Component {
 
         $this->loadColumns();
         if ($this->projectId) {
-            broadcast(new KanbanUpdated($this->projectId, 'card_moved', [], auth()->id(), auth()->user()->name))->toOthers();
+            broadcast(new KanbanUpdated($this->projectId, 'card_moved', [], auth()->id(), auth()->user()->name));
         }
     }
 
@@ -212,11 +211,14 @@ new #[Layout('layouts.app')] class extends Component {
 
     public function getListeners(): array
     {
+        $id = $this->projectId ?? 0;
         return [
-            'echo-presence:project.' . ($this->projectId ?? 0) . '.kanban,here' => 'hereUsers',
-            'echo-presence:project.' . ($this->projectId ?? 0) . '.kanban,joining' => 'userJoined',
-            'echo-presence:project.' . ($this->projectId ?? 0) . '.kanban,leaving' => 'userLeft',
-            'echo-presence:project.' . ($this->projectId ?? 0) . '.kanban,kanban.updated' => 'loadColumns',
+            // Presence: online users tracking
+            'echo-presence:project.' . $id . '.kanban,here'    => 'hereUsers',
+            'echo-presence:project.' . $id . '.kanban,joining' => 'userJoined',
+            'echo-presence:project.' . $id . '.kanban,leaving' => 'userLeft',
+            // Public channel: no auth needed, fires reliably for everyone
+            'echo:project.' . $id . '.public,kanban.updated'   => 'loadColumns',
         ];
     }
 

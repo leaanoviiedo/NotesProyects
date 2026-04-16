@@ -15,15 +15,17 @@ class ShareViewController extends Controller
             abort(410, 'This share link has expired or been revoked.');
         }
 
-        session(['share_token' => $token, 'share_project_id' => $share->project_id]);
-
-        // Redirect to kanban or notes depending on what's enabled
-        if ($share->can_kanban) {
-            return redirect()->route('share.kanban', $token);
-        } elseif ($share->can_notes) {
-            return redirect()->route('share.notes', $token);
+        // If the user is authenticated AND is already an owner/member, send to the full app
+        if (auth()->check() && $share->project->isMember(auth()->user())) {
+            if ($share->can_kanban) {
+                return redirect()->route('kanban', ['projectId' => $share->project_id]);
+            } elseif ($share->can_notes) {
+                return redirect()->route('notes', ['projectId' => $share->project_id]);
+            }
         }
 
-        abort(403, 'No accessible sections on this share link.');
+        // Everyone else (guest or non-member) → public read-only share view
+        $tab = $share->can_kanban ? 'kanban' : 'notes';
+        return redirect()->route('share.public', ['token' => $token, 'tab' => $tab]);
     }
 }

@@ -35,4 +35,5 @@ Route::middleware('auth')->group(function () {
 
 // Public share links
 Route::get('/s/{token}', [ShareViewController::class, 'show'])->name('share.view');
+Route::livewire('/share', 'share-view')->name('share.public');
 

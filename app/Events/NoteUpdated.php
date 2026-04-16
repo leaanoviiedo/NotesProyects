@@ -2,13 +2,14 @@
 
 namespace App\Events;
 
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class NoteUpdated implements ShouldBroadcast
+class NoteUpdated implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -24,6 +25,7 @@ class NoteUpdated implements ShouldBroadcast
     {
         return [
             new PresenceChannel("project.{$this->projectId}.notes"),
+            new Channel("project.{$this->projectId}.public"),
         ];
     }
 

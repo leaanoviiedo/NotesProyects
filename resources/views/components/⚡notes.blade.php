@@ -31,9 +31,9 @@ new #[Layout('layouts.app')] class extends Component {
                 $this->projectId = null;
             }
         }
-        if (!$this->projectId && count($this->projects)) {
-            $personal = collect($this->projects)->firstWhere('is_personal', true);
-            $this->projectId = $personal ? $personal['id'] : $this->projects[0]['id'];
+        // Default to the user's personal project (create it if it doesn't exist yet)
+        if (!$this->projectId) {
+            $this->projectId = auth()->user()->getOrCreatePersonalProject()->id;
         }
         $this->loadNotes();
     }

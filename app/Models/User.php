@@ -64,10 +64,38 @@ class User extends Authenticatable
         return "https://www.gravatar.com/avatar/{$hash}?d=identicon&s=80";
     }
 
+    public function savedProjects(): HasMany
+    {
+        return $this->hasMany(\App\Models\SavedProject::class);
+    }
+
     public function getInitialsAttribute(): string
     {
         $parts = explode(' ', $this->name);
         return strtoupper(substr($parts[0], 0, 1) . (isset($parts[1]) ? substr($parts[1], 0, 1) : ''));
+    }
+
+    /**
+     * Get the user's personal project, creating one if it doesn't exist.
+     * Each user has exactly one personal project.
+     */
+    public function getOrCreatePersonalProject(): Project
+    {
+        $personal = $this->ownedProjects()->where('is_personal', true)->first();
+
+        if (!$personal) {
+            $personal = Project::create([
+                'name'        => 'Personal',
+                'description' => 'Your personal workspace',
+                'color'       => '#4f46e5',
+                'icon'        => 'person',
+                'owner_id'    => $this->id,
+                'is_personal' => true,
+                'is_favorite' => true,
+            ]);
+        }
+
+        return $personal;
     }
 }
 
