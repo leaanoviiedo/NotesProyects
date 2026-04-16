@@ -257,7 +257,7 @@ new #[Layout('layouts.app')] class extends Component {
         </div>
         <button wire:click="openAddColumn"
             class="flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-high text-on-surface rounded-xl text-sm hover:bg-surface-container-highest transition">
-            <span class="material-symbols-outlined text-base">add</span> Add Column
+            <span class="material-symbols-outlined text-base">add</span> Agregar Columna
         </button>
     </div>
 
@@ -288,7 +288,7 @@ new #[Layout('layouts.app')] class extends Component {
                             class="p-1 hover:bg-surface-container-low rounded-lg transition text-on-surface-variant">
                             <span class="material-symbols-outlined text-base">add</span>
                         </button>
-                        <button wire:click="deleteColumn({{ $column['id'] }})" wire:confirm="Delete this column and all its cards?"
+                        <button wire:click="deleteColumn({{ $column['id'] }})" wire:confirm="¿Eliminar esta columna y todas sus tarjetas?"
                             class="p-1 hover:bg-error-container/30 rounded-lg transition text-on-surface-variant hover:text-error">
                             <span class="material-symbols-outlined text-base">delete</span>
                         </button>
@@ -322,12 +322,12 @@ new #[Layout('layouts.app')] class extends Component {
                                 @endif
                                 <span class="text-[10px] px-1.5 py-0.5 rounded-full font-medium
                                     {{ $card['priority'] == 3 ? 'bg-error-container/40 text-error' : ($card['priority'] == 2 ? 'bg-tertiary-container/40 text-tertiary' : 'bg-surface-container-high text-on-surface-variant') }}">
-                                    {{ $card['priority'] == 3 ? 'High' : ($card['priority'] == 2 ? 'Med' : 'Low') }}
+                                    {{ $card['priority'] == 3 ? 'Alta' : ($card['priority'] == 2 ? 'Media' : 'Baja') }}
                                 </span>
                             </div>
                             {{-- Move button + Delete (visible on hover for non-drag fallback) --}}
                             <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
-                                <button wire:click="deleteCard({{ $card['id'] }})" wire:confirm="Delete this card?"
+                                <button wire:click="deleteCard({{ $card['id'] }})" wire:confirm="¿Eliminar esta tarjeta?"
                                     class="p-0.5 rounded hover:text-error text-on-surface-variant">
                                     <span class="material-symbols-outlined text-xs">delete</span>
                                 </button>
@@ -335,14 +335,14 @@ new #[Layout('layouts.app')] class extends Component {
                         </div>
                     </div>
                     @empty
-                    <div class="text-center py-4 text-on-surface-variant/50 text-xs select-none">Drop cards here</div>
+                    <div class="text-center py-4 text-on-surface-variant/50 text-xs select-none">Suelta tarjetas aquí</div>
                     @endforelse
                 </div>
 
                 {{-- Add card quick button --}}
                 <button wire:click="openAddCard({{ $column['id'] }})"
                     class="mt-2 w-full flex items-center gap-2 px-3 py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low text-sm transition">
-                    <span class="material-symbols-outlined text-base">add</span> Add card
+                    <span class="material-symbols-outlined text-base">add</span> Agregar tarjeta
                 </button>
             </div>
             @endforeach
@@ -354,23 +354,23 @@ new #[Layout('layouts.app')] class extends Component {
     @if($showCardModal)
     <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" wire:click.self="$set('showCardModal', false)">
         <div class="bg-surface-container-lowest rounded-2xl shadow-xl p-6 w-full max-w-md">
-            <h2 class="text-lg font-bold text-on-background mb-4">New Card</h2>
+            <h2 class="text-lg font-bold text-on-background mb-4">Nueva Tarjeta</h2>
             <form wire:submit="saveCard" class="space-y-3">
                 <div>
-                    <label class="block text-sm font-medium mb-1">Title <span class="text-error">*</span></label>
+                    <label class="block text-sm font-medium mb-1">Título <span class="text-error">*</span></label>
                     <input wire:model="cardTitle" type="text" autofocus
                         class="w-full rounded-xl border border-outline-variant bg-surface-container px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
                     @error('cardTitle')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1">Description</label>
+                    <label class="block text-sm font-medium mb-1">Descripción</label>
                     <textarea wire:model="cardDescription" rows="2"
                         class="w-full rounded-xl border border-outline-variant bg-surface-container px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"></textarea>
                 </div>
                 <div class="flex gap-3">
                     <div class="flex-1">
-                        <label class="block text-sm font-medium mb-1">Label</label>
-                        <input wire:model="cardLabel" type="text" placeholder="e.g. Bug"
+                        <label class="block text-sm font-medium mb-1">Etiqueta</label>
+                        <input wire:model="cardLabel" type="text" placeholder="ej. Error"
                             class="w-full rounded-xl border border-outline-variant bg-surface-container px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
                     </div>
                     <div>
@@ -380,25 +380,25 @@ new #[Layout('layouts.app')] class extends Component {
                 </div>
                 <div class="flex gap-3">
                     <div class="flex-1">
-                        <label class="block text-sm font-medium mb-1">Priority</label>
+                        <label class="block text-sm font-medium mb-1">Prioridad</label>
                         <select wire:model="cardPriority"
                             class="w-full rounded-xl border border-outline-variant bg-surface-container px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
-                            <option value="1">Low</option>
-                            <option value="2">Medium</option>
-                            <option value="3">High</option>
+                            <option value="1">Baja</option>
+                            <option value="2">Media</option>
+                            <option value="3">Alta</option>
                         </select>
                     </div>
                     <div class="flex-1">
-                        <label class="block text-sm font-medium mb-1">Due Date</label>
+                        <label class="block text-sm font-medium mb-1">Fecha de entrega</label>
                         <input wire:model="cardDueDate" type="date"
                             class="w-full rounded-xl border border-outline-variant bg-surface-container px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
                     </div>
                 </div>
                 <div class="flex justify-end gap-3 pt-2">
                     <button type="button" wire:click="$set('showCardModal', false)"
-                        class="px-4 py-2 rounded-xl text-sm text-on-surface hover:bg-surface-container-high">Cancel</button>
+                        class="px-4 py-2 rounded-xl text-sm text-on-surface hover:bg-surface-container-high">Cancelar</button>
                     <button type="submit"
-                        class="px-4 py-2 bg-primary text-on-primary rounded-xl text-sm font-medium hover:bg-primary/90">Add Card</button>
+                        class="px-4 py-2 bg-primary text-on-primary rounded-xl text-sm font-medium hover:bg-primary/90">Agregar Tarjeta</button>
                 </div>
             </form>
         </div>
@@ -409,10 +409,10 @@ new #[Layout('layouts.app')] class extends Component {
     @if($showColumnModal)
     <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" wire:click.self="$set('showColumnModal', false)">
         <div class="bg-surface-container-lowest rounded-2xl shadow-xl p-6 w-full max-w-sm">
-            <h2 class="text-lg font-bold text-on-background mb-4">New Column</h2>
+            <h2 class="text-lg font-bold text-on-background mb-4">Nueva Columna</h2>
             <form wire:submit="saveColumn" class="space-y-3">
                 <div>
-                    <label class="block text-sm font-medium mb-1">Column Name</label>
+                    <label class="block text-sm font-medium mb-1">Nombre de columna</label>
                     <input wire:model="columnName" type="text" autofocus
                         class="w-full rounded-xl border border-outline-variant bg-surface-container px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
                     @error('columnName')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
@@ -423,9 +423,9 @@ new #[Layout('layouts.app')] class extends Component {
                 </div>
                 <div class="flex justify-end gap-3 pt-2">
                     <button type="button" wire:click="$set('showColumnModal', false)"
-                        class="px-4 py-2 rounded-xl text-sm text-on-surface hover:bg-surface-container-high">Cancel</button>
+                        class="px-4 py-2 rounded-xl text-sm text-on-surface hover:bg-surface-container-high">Cancelar</button>
                     <button type="submit"
-                        class="px-4 py-2 bg-primary text-on-primary rounded-xl text-sm font-medium hover:bg-primary/90">Add</button>
+                        class="px-4 py-2 bg-primary text-on-primary rounded-xl text-sm font-medium hover:bg-primary/90">Agregar</button>
                 </div>
             </form>
         </div>

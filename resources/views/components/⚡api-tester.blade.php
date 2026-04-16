@@ -105,9 +105,9 @@ new #[Layout('layouts.app')] class extends Component {
 
         {{-- header --}}
         <div class="px-4 py-3 border-b border-slate-700/50 flex items-center justify-between shrink-0">
-            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Saved Tests</span>
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Pruebas Guardadas</span>
             <button wire:click="newTest" @click="resetForm()"
-                title="New test"
+                title="Nueva prueba"
                 class="p-1 text-slate-500 hover:text-white hover:bg-slate-700 rounded-lg transition">
                 <span class="material-symbols-outlined text-base leading-none">add</span>
             </button>
@@ -136,7 +136,7 @@ new #[Layout('layouts.app')] class extends Component {
                     </div>
                 </button>
                 <button wire:click="deleteTest({{ $test['id'] }})"
-                    wire:confirm="Delete '{{ $test['name'] }}'?"
+                    wire:confirm="¿Eliminar '{{ $test['name'] }}'?"
                     title="Delete"
                     class="px-2 text-slate-700 hover:text-red-400 opacity-0 group-hover:opacity-100 transition shrink-0">
                     <span class="material-symbols-outlined text-sm leading-none">close</span>
@@ -145,7 +145,7 @@ new #[Layout('layouts.app')] class extends Component {
             @empty
             <div class="flex flex-col items-center justify-center py-10 px-4 text-center">
                 <span class="material-symbols-outlined text-3xl text-slate-700 mb-2">api</span>
-                <p class="text-xs text-slate-600 italic">No saved tests yet.<br>Configure a request and hit Save.</p>
+                <p class="text-xs text-slate-600 italic">Sin pruebas guardadas.<br>Configura una solicitud y guárdala.</p>
             </div>
             @endforelse
         </div>
@@ -157,17 +157,17 @@ new #[Layout('layouts.app')] class extends Component {
         {{-- ── Name bar ── --}}
         <div class="px-4 py-2.5 border-b border-slate-700/50 flex items-center gap-3 shrink-0 bg-slate-900/60">
             <span class="material-symbols-outlined text-slate-600 text-base shrink-0">api</span>
-            <input x-model="name" type="text" placeholder="Test name…"
+            <input x-model="name" type="text" placeholder="Nombre de prueba…"
                 class="flex-1 bg-transparent text-slate-200 text-sm font-medium placeholder-slate-600 focus:outline-none" />
             <button @click="save()" :disabled="saving"
                 class="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition shrink-0">
                 <span class="material-symbols-outlined text-sm leading-none">save</span>
-                <span x-text="saving ? 'Saving…' : 'Save'"></span>
+                <span x-text="saving ? 'Guardando…' : 'Guardar'"></span>
             </button>
             {{-- Save badge --}}
             <span x-show="savedFlash" x-transition.opacity
                 class="text-[10px] text-emerald-400 flex items-center gap-1 shrink-0">
-                <span class="material-symbols-outlined text-sm leading-none">check_circle</span> Saved
+                <span class="material-symbols-outlined text-sm leading-none">check_circle</span> Guardado
             </span>
         </div>
 
@@ -205,7 +205,7 @@ new #[Layout('layouts.app')] class extends Component {
                 <template x-if="!loading">
                     <span class="material-symbols-outlined text-sm leading-none">send</span>
                 </template>
-                <span x-text="loading ? 'Sending…' : 'Send'"></span>
+                <span x-text="loading ? 'Enviando…' : 'Enviar'"></span>
             </button>
         </div>
 
@@ -216,7 +216,7 @@ new #[Layout('layouts.app')] class extends Component {
                     ? 'text-white border-b-2 border-indigo-500'
                     : 'text-slate-500 hover:text-slate-300 border-b-2 border-transparent'"
                 class="px-4 py-2.5 text-xs font-medium transition-colors">
-                Headers
+                Cabeceras
                 <span x-text="`(${headers.filter(h => h.key?.trim()).length})`"
                       class="ml-1 text-slate-600 text-[10px]"></span>
             </button>
@@ -225,7 +225,7 @@ new #[Layout('layouts.app')] class extends Component {
                     ? 'text-white border-b-2 border-indigo-500'
                     : (hasBody ? 'text-slate-500 hover:text-slate-300 border-b-2 border-transparent' : 'text-slate-700 cursor-not-allowed border-b-2 border-transparent')"
                 class="px-4 py-2.5 text-xs font-medium transition-colors">
-                Body
+                Cuerpo
                 <template x-if="!hasBody">
                     <span class="ml-1 text-[9px] text-slate-700">N/A</span>
                 </template>
@@ -237,9 +237,9 @@ new #[Layout('layouts.app')] class extends Component {
              class="px-4 py-3 space-y-2 border-b border-slate-700/50 shrink-0 max-h-52 overflow-y-auto">
             <template x-for="(header, idx) in headers" :key="idx">
                 <div class="flex gap-2 items-center">
-                    <input x-model="header.key" type="text" placeholder="Header name"
+                    <input x-model="header.key" type="text" placeholder="Nombre de cabecera"
                         class="w-40 shrink-0 bg-slate-800/70 text-slate-200 rounded-lg px-3 py-1.5 text-xs border border-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono placeholder-slate-600" />
-                    <input x-model="header.value" type="text" placeholder="Value"
+                    <input x-model="header.value" type="text" placeholder="Valor"
                         class="flex-1 min-w-0 bg-slate-800/70 text-slate-200 rounded-lg px-3 py-1.5 text-xs border border-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono placeholder-slate-600" />
                     <button @click="removeHeader(idx)"
                         class="p-1.5 text-slate-600 hover:text-red-400 rounded-lg hover:bg-slate-800 transition shrink-0">
@@ -249,7 +249,7 @@ new #[Layout('layouts.app')] class extends Component {
             </template>
             <button @click="addHeader()"
                 class="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 transition mt-1">
-                <span class="material-symbols-outlined text-sm leading-none">add</span> Add Header
+                <span class="material-symbols-outlined text-sm leading-none">add</span> Agregar Cabecera
             </button>
         </div>
 
@@ -269,7 +269,7 @@ new #[Layout('layouts.app')] class extends Component {
             <template x-if="!response && !error && !loading">
                 <div class="flex-1 flex flex-col items-center justify-center gap-3 text-slate-700">
                     <span class="material-symbols-outlined text-5xl opacity-30">send</span>
-                    <p class="text-sm">Configure a request above and click <strong class="text-slate-500 font-semibold">Send</strong></p>
+                    <p class="text-sm">Configura una solicitud arriba y haz clic en <strong class="text-slate-500 font-semibold">Enviar</strong></p>
                 </div>
             </template>
 
@@ -277,7 +277,7 @@ new #[Layout('layouts.app')] class extends Component {
             <template x-if="loading">
                 <div class="flex-1 flex flex-col items-center justify-center gap-3 text-slate-500">
                     <span class="material-symbols-outlined text-3xl animate-spin">progress_activity</span>
-                    <p class="text-xs">Sending request…</p>
+                    <p class="text-xs">Enviando solicitud…</p>
                 </div>
             </template>
 
@@ -287,7 +287,7 @@ new #[Layout('layouts.app')] class extends Component {
                     <div class="max-w-xl bg-red-950/40 border border-red-800/30 rounded-2xl p-5 space-y-3">
                         <div class="flex items-center gap-2">
                             <span class="material-symbols-outlined text-red-400 text-xl">error</span>
-                            <span class="text-red-400 font-semibold">Request Failed</span>
+                            <span class="text-red-400 font-semibold">Solicitud fallida</span>
                             <span class="ml-auto text-slate-600 text-xs" x-text="`${error.time} ms`"></span>
                         </div>
                         <pre class="text-red-300/80 text-xs font-mono bg-slate-900/60 rounded-xl px-4 py-2 whitespace-pre-wrap break-all"
@@ -331,7 +331,7 @@ new #[Layout('layouts.app')] class extends Component {
                         <span class="ml-auto text-[10px] font-mono text-slate-600"
                               x-text="response.isJson ? 'JSON' : 'TEXT'"></span>
                         <button @click="copyResponse()"
-                            title="Copy to clipboard"
+                            title="Copiar al portapapeles"
                             class="p-1 text-slate-600 hover:text-slate-300 transition">
                             <span class="material-symbols-outlined text-sm leading-none">content_copy</span>
                         </button>

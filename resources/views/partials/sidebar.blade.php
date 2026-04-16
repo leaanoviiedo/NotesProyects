@@ -18,7 +18,7 @@
            @click="sidebarOpen = false"
            class="flex items-center gap-3 px-3 py-2 rounded-xl {{ request()->routeIs('dashboard') ? 'text-white font-semibold bg-indigo-600/20' : 'text-slate-400 font-medium' }} hover:bg-slate-800 transition-colors">
             <span class="material-symbols-outlined text-xl shrink-0 {{ request()->routeIs('dashboard') ? 'text-indigo-400' : 'text-slate-500' }}">home</span>
-            <span class="text-sm">Dashboard</span>
+            <span class="text-sm">Panel</span>
         </a>
 
         @auth
@@ -59,7 +59,7 @@
                 class="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-xl {{ request()->routeIs('projects*') ? 'text-white font-semibold bg-indigo-600/20' : 'text-slate-400 font-medium' }} hover:bg-slate-800 transition-colors">
                 <div class="flex items-center gap-3">
                     <span class="material-symbols-outlined text-xl shrink-0 {{ request()->routeIs('projects*') ? 'text-indigo-400' : 'text-slate-500' }}">folder_open</span>
-                    <span class="text-sm">Projects</span>
+                    <span class="text-sm">Proyectos</span>
                 </div>
                 <span class="material-symbols-outlined text-base text-slate-600 transition-transform duration-200"
                       :class="projectsOpen ? 'rotate-90' : ''">chevron_right</span>
@@ -91,16 +91,16 @@
                         <a href="{{ route('notes', ['projectId' => $proj->id]) }}"
                            @click="sidebarOpen = false"
                            class="flex items-center gap-2 px-3 py-1 rounded-lg {{ $projNotesActive ? 'text-indigo-400 bg-indigo-600/10 font-medium' : 'text-slate-500 hover:bg-slate-800 hover:text-slate-300' }} transition-colors text-[11px]">
-                            <span class="material-symbols-outlined text-sm">description</span> Notes
+                            <span class="material-symbols-outlined text-sm">description</span> Notas
                         </a>
                     </div>
                 </div>
                 @empty
-                <p class="pl-4 py-1 text-[11px] text-slate-600 italic">No projects yet.</p>
+                <p class="pl-4 py-1 text-[11px] text-slate-600 italic">Sin proyectos aún.</p>
                 @endforelse
                 <a href="{{ route('projects') }}" @click="sidebarOpen = false"
                     class="flex items-center gap-2 pl-4 pr-2 py-1.5 rounded-xl text-indigo-400/80 hover:bg-slate-800 hover:text-indigo-300 transition-colors text-xs font-medium">
-                    <span class="material-symbols-outlined text-sm">apps</span> All Projects
+                    <span class="material-symbols-outlined text-sm">apps</span> Todos los proyectos
                 </a>
             </div>
         </div>
@@ -112,7 +112,7 @@
                 class="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-xl {{ request()->routeIs('share.public') ? 'text-white font-semibold bg-indigo-600/20' : 'text-slate-400 font-medium' }} hover:bg-slate-800 transition-colors">
                 <div class="flex items-center gap-3">
                     <span class="material-symbols-outlined text-xl shrink-0 {{ request()->routeIs('share.public') ? 'text-indigo-400' : 'text-slate-500' }}">bookmarks</span>
-                    <span class="text-sm">Saved</span>
+                    <span class="text-sm">Guardados</span>
                 </div>
                 <span class="material-symbols-outlined text-base text-slate-600 transition-transform duration-200"
                       :class="savedOpen ? 'rotate-90' : ''">chevron_right</span>
@@ -150,7 +150,7 @@
                         <a href="{{ route('share.public', ['token' => $saved->share_token, 'tab' => 'notes']) }}"
                            @click="sidebarOpen = false"
                            class="flex items-center gap-2 px-3 py-1 rounded-lg {{ $spActive && $currentTab === 'notes' ? 'text-indigo-400 bg-indigo-600/10 font-medium' : 'text-slate-500 hover:bg-slate-800 hover:text-slate-300' }} transition-colors text-[11px]">
-                            <span class="material-symbols-outlined text-sm">description</span> Notes
+                            <span class="material-symbols-outlined text-sm">description</span> Notas
                         </a>
                         @endif
                     </div>
@@ -169,13 +169,13 @@
            @click="sidebarOpen = false"
            class="flex items-center gap-3 px-3 py-2 rounded-xl {{ $sidebarPersonalMode && request()->routeIs('kanban') ? 'text-white font-semibold bg-indigo-600/20' : 'text-slate-400 font-medium' }} hover:bg-slate-800 transition-colors">
             <span class="material-symbols-outlined text-xl shrink-0 {{ $sidebarPersonalMode && request()->routeIs('kanban') ? 'text-indigo-400' : 'text-slate-500' }}">view_kanban</span>
-            <span class="text-sm">My Kanban</span>
+            <span class="text-sm">Mi Kanban</span>
         </a>
         <a href="{{ route('notes', ['projectId' => $sidebarPersonalProject->id]) }}"
            @click="sidebarOpen = false"
            class="flex items-center gap-3 px-3 py-2 rounded-xl {{ $sidebarPersonalMode && request()->routeIs('notes') ? 'text-white font-semibold bg-indigo-600/20' : 'text-slate-400 font-medium' }} hover:bg-slate-800 transition-colors">
             <span class="material-symbols-outlined text-xl shrink-0 {{ $sidebarPersonalMode && request()->routeIs('notes') ? 'text-indigo-400' : 'text-slate-500' }}">description</span>
-            <span class="text-sm">My Notes</span>
+            <span class="text-sm">Mis Notas</span>
         </a>
         @endauth
 
@@ -184,30 +184,30 @@
            @click="sidebarOpen = false"
            class="flex items-center gap-3 px-3 py-2 rounded-xl {{ request()->routeIs('calendar') ? 'text-white font-semibold bg-indigo-600/20' : 'text-slate-400 font-medium' }} hover:bg-slate-800 transition-colors">
             <span class="material-symbols-outlined text-xl shrink-0 {{ request()->routeIs('calendar') ? 'text-indigo-400' : 'text-slate-500' }}">calendar_month</span>
-            <span class="text-sm">Calendar</span>
+            <span class="text-sm">Calendario</span>
         </a>
 
         {{-- ---- TOOLS section ---- --}}
         <div class="pt-4 pb-1.5 px-3">
-            <span class="text-slate-600 font-label text-[10px] uppercase tracking-widest">Tools</span>
+            <span class="text-slate-600 font-label text-[10px] uppercase tracking-widest">Herramientas</span>
         </div>
         <a href="{{ route('api-tester') }}"
            @click="sidebarOpen = false"
            class="flex items-center gap-3 px-3 py-2 rounded-xl {{ request()->routeIs('api-tester') ? 'text-white font-semibold bg-indigo-600/20' : 'text-slate-400 font-medium' }} hover:bg-slate-800 transition-colors">
             <span class="material-symbols-outlined text-xl shrink-0 {{ request()->routeIs('api-tester') ? 'text-indigo-400' : 'text-slate-500' }}">api</span>
-            <span class="text-sm">API Tester</span>
+            <span class="text-sm">Tester API</span>
         </a>
         <a href="{{ route('logs') }}"
            @click="sidebarOpen = false"
            class="flex items-center gap-3 px-3 py-2 rounded-xl {{ request()->routeIs('logs') ? 'text-white font-semibold bg-indigo-600/20' : 'text-slate-400 font-medium' }} hover:bg-slate-800 transition-colors">
             <span class="material-symbols-outlined text-xl shrink-0 {{ request()->routeIs('logs') ? 'text-indigo-400' : 'text-slate-500' }}">terminal</span>
-            <span class="text-sm">Log Console</span>
+            <span class="text-sm">Consola de Registros</span>
         </a>
         <a href="{{ route('snippets') }}"
            @click="sidebarOpen = false"
            class="flex items-center gap-3 px-3 py-2 rounded-xl {{ request()->routeIs('snippets') ? 'text-white font-semibold bg-indigo-600/20' : 'text-slate-400 font-medium' }} hover:bg-slate-800 transition-colors">
             <span class="material-symbols-outlined text-xl shrink-0 {{ request()->routeIs('snippets') ? 'text-indigo-400' : 'text-slate-500' }}">code_blocks</span>
-            <span class="text-sm">Snippets</span>
+            <span class="text-sm">Fragmentos</span>
         </a>
     </nav>
 
@@ -216,27 +216,27 @@
         @auth
         <a href="{{ route('projects') }}" wire:navigate class="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-4 rounded-xl transition-all active:scale-95 mb-4 shadow-lg shadow-indigo-600/20">
             <span class="material-symbols-outlined text-xl">add</span>
-            <span class="text-sm">New Project</span>
+            <span class="text-sm">Nuevo Proyecto</span>
         </a>
         <a href="{{ route('dashboard') }}" wire:navigate class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-400 font-medium hover:bg-slate-800 transition-colors">
             <span class="material-symbols-outlined text-xl">settings</span>
-            <span class="text-sm">Settings</span>
+            <span class="text-sm">Configuración</span>
         </a>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-slate-400 font-medium hover:bg-slate-800 transition-colors">
                 <span class="material-symbols-outlined text-slate-500 text-xl">logout</span>
-                <span class="text-sm">Logout</span>
+                <span class="text-sm">Cerrar sesión</span>
             </button>
         </form>
         @else
         <a href="{{ route('login') }}" class="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-4 rounded-xl transition-all active:scale-95 mb-2 shadow-lg shadow-indigo-600/20">
             <span class="material-symbols-outlined text-xl">login</span>
-            <span class="text-sm">Sign in</span>
+            <span class="text-sm">Iniciar sesión</span>
         </a>
         <a href="{{ route('register') }}" class="w-full flex items-center justify-center gap-2 border border-slate-700 text-slate-400 font-medium py-2.5 px-4 rounded-xl hover:bg-slate-800 transition-all">
             <span class="material-symbols-outlined text-xl">person_add</span>
-            <span class="text-sm">Create account</span>
+            <span class="text-sm">Crear cuenta</span>
         </a>
         @endauth
     </div>

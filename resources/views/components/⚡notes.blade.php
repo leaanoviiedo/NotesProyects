@@ -231,7 +231,7 @@ new #[Layout('layouts.app')] class extends Component {
         {{-- Online collaborators --}}
         @if(count($onlineUsers) > 0)
         <div class="flex items-center gap-1.5">
-            <span class="text-xs text-on-surface-variant">Online:</span>
+            <span class="text-xs text-on-surface-variant">En línea:</span>
             <div class="flex -space-x-1.5">
                 @foreach($onlineUsers as $u)
                 <span class="w-6 h-6 rounded-full bg-primary text-on-primary text-[9px] font-bold flex items-center justify-center border-2 border-surface cursor-default"
@@ -245,7 +245,7 @@ new #[Layout('layouts.app')] class extends Component {
             <button @click="mobilePanel = 'list'"
                 :class="mobilePanel === 'list' ? 'bg-primary/10 text-primary' : 'text-on-surface-variant'"
                 class="px-3 py-1.5 rounded-lg text-sm font-medium">
-                <span class="material-symbols-outlined text-base align-middle">list</span> Notes
+                <span class="material-symbols-outlined text-base align-middle">list</span> Notas
             </button>
             <button @click="mobilePanel = 'editor'"
                 :class="mobilePanel === 'editor' ? 'bg-primary/10 text-primary' : 'text-on-surface-variant'"
@@ -264,7 +264,7 @@ new #[Layout('layouts.app')] class extends Component {
             <div class="p-3 border-b border-outline-variant/30 flex gap-2">
                 <div class="relative flex-1">
                     <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
-                    <input wire:model.live.debounce.300ms="search" type="text" placeholder="Search notes..."
+                    <input wire:model.live.debounce.300ms="search" type="text" placeholder="Buscar notas..."
                         class="w-full pl-8 pr-3 py-1.5 rounded-xl border border-outline-variant bg-surface-container-low text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
                 </div>
                 <button wire:click="newNote" @click="mobilePanel = 'editor'"
@@ -290,7 +290,7 @@ new #[Layout('layouts.app')] class extends Component {
                                 {{ $note['title'] }}
                             </p>
                             <p class="text-xs text-on-surface-variant mt-0.5 line-clamp-2">
-                                {{ html_entity_decode(strip_tags($note['content'] ?? 'No content')) }}
+                                {{ html_entity_decode(strip_tags($note['content'] ?? 'Sin contenido')) }}
                             </p>
                             <div class="flex items-center gap-2 mt-1">
                                 @if($note['category'])
@@ -315,8 +315,8 @@ new #[Layout('layouts.app')] class extends Component {
                 @empty
                 <div class="text-center py-12 text-on-surface-variant">
                     <span class="material-symbols-outlined text-4xl block mb-2">notes</span>
-                    <p class="text-sm">No notes yet.</p>
-                    <button wire:click="newNote" @click="mobilePanel = 'editor'" class="text-primary text-sm hover:underline mt-1">Create one</button>
+                    <p class="text-sm">Sin notas aún.</p>
+                    <button wire:click="newNote" @click="mobilePanel = 'editor'" class="text-primary text-sm hover:underline mt-1">Crear una</button>
                 </div>
                 @endforelse
             </div>
@@ -339,7 +339,7 @@ new #[Layout('layouts.app')] class extends Component {
             </div>
             @endif
             <div class="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-outline-variant/30 shrink-0 gap-3">
-                <input wire:model.blur="noteTitle" type="text" placeholder="Note title..."
+                <input wire:model.blur="noteTitle" type="text" placeholder="Título de la nota..."
                     class="flex-1 text-lg font-bold bg-transparent border-none focus:outline-none text-on-background placeholder:text-on-surface-variant/40" />
                 <div class="flex items-center gap-2 shrink-0">
                     @if($activeNoteId)
@@ -347,22 +347,22 @@ new #[Layout('layouts.app')] class extends Component {
                         class="p-1.5 rounded-lg hover:bg-surface-container-high {{ $noteIsPinned ? 'text-primary' : 'text-on-surface-variant' }}">
                         <span class="material-symbols-outlined text-base">push_pin</span>
                     </button>
-                    <button wire:click="deleteNote({{ $activeNoteId }})" wire:confirm="Delete this note?"
+                    <button wire:click="deleteNote({{ $activeNoteId }})" wire:confirm="¿Eliminar esta nota?"
                         class="p-1.5 rounded-lg hover:bg-error-container/30 text-on-surface-variant hover:text-error">
                         <span class="material-symbols-outlined text-base">delete</span>
                     </button>
                     @endif
                     <button wire:click="saveNote"
                         class="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-on-primary rounded-xl text-sm font-medium hover:bg-primary/90">
-                        <span class="material-symbols-outlined text-base">save</span> Save
+                        <span class="material-symbols-outlined text-base">save</span> Guardar
                     </button>
                 </div>
             </div>
             <div class="flex items-center gap-3 px-4 sm:px-6 py-2 border-b border-outline-variant/20 shrink-0">
-                <input wire:model.blur="noteCategory" type="text" placeholder="Category (optional)"
+                <input wire:model.blur="noteCategory" type="text" placeholder="Categoría (opcional)"
                     class="text-xs bg-transparent border border-outline-variant rounded-full px-3 py-1 focus:outline-none focus:ring-1 focus:ring-primary text-on-surface-variant" />
                 <label class="flex items-center gap-1.5 text-xs text-on-surface-variant cursor-pointer">
-                    <input wire:model="noteIsPinned" type="checkbox" class="accent-primary"> Pinned
+                    <input wire:model="noteIsPinned" type="checkbox" class="accent-primary"> Fijada
                 </label>
             </div>
 
@@ -457,10 +457,10 @@ new #[Layout('layouts.app')] class extends Component {
             <div class="flex-1 flex items-center justify-center text-on-surface-variant">
                 <div class="text-center">
                     <span class="material-symbols-outlined text-5xl block mb-3">edit_note</span>
-                    <p class="text-sm mb-3">Select a note or create a new one</p>
+                    <p class="text-sm mb-3">Selecciona una nota o crea una nueva</p>
                     <button wire:click="newNote"
                         class="px-4 py-2 bg-primary text-on-primary rounded-xl text-sm font-medium hover:bg-primary/90">
-                        New Note
+                        Nueva Nota
                     </button>
                 </div>
             </div>

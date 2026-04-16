@@ -357,23 +357,7 @@ new #[Layout('layouts.app')] class extends Component {
 };
 ?>
 
-{{-- ═══════════════════════════════════════════════════════════════════════
-     Highlight.js (github-dark) via CDN — only loaded on this page
-     ═════════════════════════════════════════════════════════════════════ --}}
-@push('head')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>
-<script>
-    document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());
-    document.addEventListener('livewire:navigated', () => hljs.highlightAll());
-    document.addEventListener('snippet-rendered', () => {
-        document.querySelectorAll('pre code').forEach(el => {
-            delete el.dataset.highlighted;
-            hljs.highlightElement(el);
-        });
-    });
-</script>
-@endpush
+
 
 <div class="h-full flex overflow-hidden bg-slate-950 text-slate-100 font-mono"
      x-data="snippetPage">
@@ -387,14 +371,14 @@ new #[Layout('layouts.app')] class extends Component {
                 <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm pointer-events-none">search</span>
                 <input wire:model.live.debounce.300ms="search"
                        type="text"
-                       placeholder="Search snippets..."
+                       placeholder="Buscar fragmentos..."
                        class="w-full bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 placeholder-slate-600">
             </div>
 
             {{-- Language filter --}}
             <select wire:model.live="langFilter"
                     class="w-full bg-slate-800 border border-slate-700 text-slate-400 text-xs rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
-                <option value="">All languages</option>
+                <option value="">Todos los lenguajes</option>
                 @foreach(self::$languages as $slug => $label)
                 <option value="{{ $slug }}">{{ $label }}</option>
                 @endforeach
@@ -404,11 +388,11 @@ new #[Layout('layouts.app')] class extends Component {
                 <label class="flex items-center gap-1.5 text-xs text-slate-400 cursor-pointer select-none">
                     <input wire:model.live="favOnly" type="checkbox"
                            class="rounded border-slate-600 bg-slate-700 text-amber-400 focus:ring-0">
-                    <span class="text-amber-400">★</span> Favorites only
+                    <span class="text-amber-400">★</span> Solo favoritos
                 </label>
                 <button wire:click="openCreate"
                         class="ml-auto flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-colors">
-                    <span class="material-symbols-outlined text-sm">add</span> New
+                    <span class="material-symbols-outlined text-sm">add</span> Nuevo
                 </button>
             </div>
         </div>
@@ -441,8 +425,8 @@ new #[Layout('layouts.app')] class extends Component {
             </button>
             @empty
             <div class="p-6 text-center text-slate-600 text-xs">
-                No snippets found.<br>
-                <button wire:click="openCreate" class="mt-2 text-indigo-500 hover:text-indigo-300 transition-colors">Create one →</button>
+                No se encontraron fragmentos.<br>
+                <button wire:click="openCreate" class="mt-2 text-indigo-500 hover:text-indigo-300 transition-colors">Crear uno →</button>
             </div>
             @endforelse
         </div>
@@ -455,7 +439,7 @@ new #[Layout('layouts.app')] class extends Component {
         {{-- ─── CREATE / EDIT FORM ─────────────────────────────────────────── --}}
         <div class="shrink-0 bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center gap-3">
             <span class="material-symbols-outlined text-indigo-400">{{ $editing ? 'edit' : 'add_circle' }}</span>
-            <h2 class="text-white font-bold font-sans">{{ $editing ? 'Edit Snippet' : 'New Snippet' }}</h2>
+            <h2 class="text-white font-bold font-sans">{{ $editing ? 'Editar Fragmento' : 'Nuevo Fragmento' }}</h2>
             <button wire:click="cancelForm" class="ml-auto text-slate-500 hover:text-slate-300 transition-colors">
                 <span class="material-symbols-outlined">close</span>
             </button>
@@ -467,14 +451,14 @@ new #[Layout('layouts.app')] class extends Component {
                 {{-- Title & Language --}}
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="sm:col-span-2">
-                        <label class="block text-xs text-slate-400 font-medium mb-1.5">Title <span class="text-red-500">*</span></label>
+                        <label class="block text-xs text-slate-400 font-medium mb-1.5">Título <span class="text-red-500">*</span></label>
                         <input wire:model.defer="form_title" type="text"
-                               placeholder="e.g. Docker Compose base template"
+                               placeholder="ej. Plantilla base de Docker Compose"
                                class="w-full bg-slate-800 border border-slate-700 text-slate-100 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/60 placeholder-slate-600">
                         @error('form_title') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                     </div>
                     <div>
-                        <label class="block text-xs text-slate-400 font-medium mb-1.5">Language <span class="text-red-500">*</span></label>
+                        <label class="block text-xs text-slate-400 font-medium mb-1.5">Lenguaje <span class="text-red-500">*</span></label>
                         <select wire:model.defer="form_language"
                                 class="w-full bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/60">
                             @foreach(self::$languages as $slug => $label)
@@ -486,17 +470,17 @@ new #[Layout('layouts.app')] class extends Component {
 
                 {{-- Description --}}
                 <div>
-                    <label class="block text-xs text-slate-400 font-medium mb-1.5">Description</label>
+                    <label class="block text-xs text-slate-400 font-medium mb-1.5">Descripción</label>
                     <input wire:model.defer="form_description" type="text"
-                           placeholder="What does this snippet do?"
+                           placeholder="¿Qué hace este fragmento?"
                            class="w-full bg-slate-800 border border-slate-700 text-slate-100 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/60 placeholder-slate-600">
                 </div>
 
                 {{-- Code --}}
                 <div>
-                    <label class="block text-xs text-slate-400 font-medium mb-1.5">Code <span class="text-red-500">*</span></label>
+                    <label class="block text-xs text-slate-400 font-medium mb-1.5">Código <span class="text-red-500">*</span></label>
                     <textarea wire:model.defer="form_code" rows="18"
-                              placeholder="Paste your code here..."
+                              placeholder="Pega tu código aquí..."
                               class="w-full bg-slate-950 border border-slate-700 text-emerald-300 text-xs font-mono rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/60 resize-y placeholder-slate-700 leading-relaxed"></textarea>
                     @error('form_code') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                 </div>
@@ -504,16 +488,16 @@ new #[Layout('layouts.app')] class extends Component {
                 {{-- Tags & Project --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs text-slate-400 font-medium mb-1.5">Tags <span class="text-slate-600">(comma-separated)</span></label>
+                        <label class="block text-xs text-slate-400 font-medium mb-1.5">Etiquetas <span class="text-slate-600">(separadas por coma)</span></label>
                         <input wire:model.defer="form_tags" type="text"
                                placeholder="docker, devops, config"
                                class="w-full bg-slate-800 border border-slate-700 text-slate-100 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/60 placeholder-slate-600">
                     </div>
                     <div>
-                        <label class="block text-xs text-slate-400 font-medium mb-1.5">Link to Project <span class="text-slate-600">(optional)</span></label>
+                        <label class="block text-xs text-slate-400 font-medium mb-1.5">Vincular a Proyecto <span class="text-slate-600">(opcional)</span></label>
                         <select wire:model.defer="form_project_id"
                                 class="w-full bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/60">
-                            <option value="">— None —</option>
+                            <option value="">— Ninguno —</option>
                             @foreach($userProjects as $proj)
                             <option value="{{ $proj['id'] }}">{{ $proj['name'] }}</option>
                             @endforeach
@@ -525,12 +509,12 @@ new #[Layout('layouts.app')] class extends Component {
                 <div class="flex items-center justify-end gap-3 pt-2">
                     <button wire:click="cancelForm"
                             class="px-4 py-2 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 border border-slate-700 transition-colors">
-                        Cancel
+                        Cancelar
                     </button>
                     <button wire:click="save"
                             class="px-6 py-2 rounded-xl text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-colors shadow-lg shadow-indigo-600/20">
-                        <span wire:loading.remove wire:target="save">{{ $editing ? 'Save Changes' : 'Save Snippet' }}</span>
-                        <span wire:loading wire:target="save">Saving...</span>
+                        <span wire:loading.remove wire:target="save">{{ $editing ? 'Guardar Cambios' : 'Guardar Fragmento' }}</span>
+                        <span wire:loading wire:target="save">Guardando...</span>
                     </button>
                 </div>
             </div>
@@ -560,7 +544,7 @@ new #[Layout('layouts.app')] class extends Component {
             <div class="flex items-center gap-1 shrink-0">
                 {{-- Favorite --}}
                 <button wire:click="toggleFavorite({{ $active['id'] }})"
-                        title="{{ $active['is_favorite'] ? 'Remove from favorites' : 'Add to favorites' }}"
+                        title="{{ $active['is_favorite'] ? 'Quitar de favoritos' : 'Agregar a favoritos' }}"
                         class="p-2 rounded-lg text-slate-500 hover:bg-slate-800 transition-colors {{ $active['is_favorite'] ? 'text-amber-400 hover:text-amber-300' : 'hover:text-amber-400' }}">
                     <span class="material-symbols-outlined text-lg">{{ $active['is_favorite'] ? 'star' : 'star_border' }}</span>
                 </button>
@@ -574,14 +558,14 @@ new #[Layout('layouts.app')] class extends Component {
                         "
                         class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 border border-slate-700 text-slate-300 hover:border-indigo-500/60 hover:text-white transition-colors">
                     <span class="material-symbols-outlined text-sm" x-text="copied ? 'check' : 'content_copy'"></span>
-                    <span x-text="copied ? 'Copied!' : 'Copy'"></span>
+                    <span x-text="copied ? '¡Copiado!' : 'Copiar'"></span>
                 </button>
 
                 {{-- Export --}}
                 <button @click="$wire.exportSnippet()"
                         x-data
                         @snippet-export.window="downloadFile($event.detail.filename, $event.detail.content)"
-                        title="Download file"
+                        title="Descargar archivo"
                         class="p-2 rounded-lg text-slate-500 hover:bg-slate-800 hover:text-slate-200 transition-colors border border-transparent hover:border-slate-700">
                     <span class="material-symbols-outlined text-lg">download</span>
                 </button>
@@ -594,7 +578,7 @@ new #[Layout('layouts.app')] class extends Component {
 
                 {{-- Delete --}}
                 <button wire:click="delete"
-                        wire:confirm="Delete '{{ $active['title'] }}'? This cannot be undone."
+                        wire:confirm="¿Eliminar '{{ $active['title'] }}'? Esta acción no se puede deshacer."
                         class="p-2 rounded-lg text-slate-500 hover:bg-red-900/30 hover:text-red-400 transition-colors border border-transparent hover:border-red-800/50">
                     <span class="material-symbols-outlined text-lg">delete</span>
                 </button>
@@ -609,7 +593,7 @@ new #[Layout('layouts.app')] class extends Component {
                             : 'bg-emerald-600 border-emerald-500 text-white hover:bg-emerald-500'">
                     <span class="material-symbols-outlined text-sm" x-text="running ? 'hourglass_top' : 'play_arrow'"
                           :class="running ? 'animate-spin' : ''"></span>
-                    <span x-text="running ? 'Running…' : 'Run'"></span>
+                    <span x-text="running ? 'Ejecutando…' : 'Ejecutar'"></span>
                 </button>
                 @endif
             </div>
@@ -642,7 +626,7 @@ new #[Layout('layouts.app')] class extends Component {
             {{-- Output header --}}
             <div class="flex items-center gap-2 px-4 py-2 bg-slate-800/80 border-b border-slate-700 shrink-0 font-sans">
                 <span class="material-symbols-outlined text-sm text-slate-500">terminal</span>
-                <span class="text-xs font-semibold text-slate-400">Output</span>
+                <span class="text-xs font-semibold text-slate-400">Salida</span>
 
                 {{-- Exit code badge --}}
                 <template x-if="runOutput.exitCode !== null">
@@ -681,14 +665,14 @@ new #[Layout('layouts.app')] class extends Component {
 
                 {{-- No output --}}
                 <template x-if="!runOutput.stdout && !runOutput.stderr && runOutput.exitCode !== null">
-                    <p class="text-slate-600 italic text-[11px]">(no output)</p>
+                    <p class="text-slate-600 italic text-[11px]">(sin salida)</p>
                 </template>
 
                 {{-- Loading --}}
                 <template x-if="running">
                     <div class="flex items-center gap-2 text-slate-500">
                         <span class="material-symbols-outlined text-base animate-spin">progress_activity</span>
-                        <span>Executing via Piston sandbox…</span>
+                        <span>Ejecutando localmente…</span>
                     </div>
                 </template>
             </div>
@@ -699,12 +683,12 @@ new #[Layout('layouts.app')] class extends Component {
         <div class="flex-1 flex flex-col items-center justify-center gap-4 text-center px-8 font-sans">
             <span class="material-symbols-outlined text-slate-700 text-6xl">code_blocks</span>
             <div>
-                <p class="text-slate-500 font-semibold">No snippet selected</p>
-                <p class="text-slate-700 text-sm mt-1">Select one from the list or create a new one.</p>
+                <p class="text-slate-500 font-semibold">Ningún fragmento seleccionado</p>
+                <p class="text-slate-700 text-sm mt-1">Selecciona uno de la lista o crea uno nuevo.</p>
             </div>
             <button wire:click="openCreate"
                     class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-colors shadow-lg shadow-indigo-600/20 mt-2">
-                <span class="material-symbols-outlined text-base">add</span> New Snippet
+                <span class="material-symbols-outlined text-base">add</span> Nuevo Fragmento
             </button>
         </div>
         @endif

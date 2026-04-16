@@ -7,13 +7,24 @@ import Placeholder from '@tiptap/extension-placeholder';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { createLowlight, all } from 'lowlight';
 
-// Highlight.js theme (github-dark) — imported as CSS
+// Highlight.js — tema github-dark local (sin CDN)
 import 'highlight.js/styles/github-dark.css';
+import hljs from 'highlight.js';
 
 const lowlight = createLowlight(all);
 
 window.Pusher = Pusher;
 window.Sortable = Sortable;
+
+// Resialtado de sintaxis: se activa en carga de página, navegación SPA y re-renders de snippets
+document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());
+document.addEventListener('livewire:navigated', () => hljs.highlightAll());
+document.addEventListener('snippet-rendered', () => {
+    document.querySelectorAll('pre code').forEach(el => {
+        delete el.dataset.highlighted;
+        hljs.highlightElement(el);
+    });
+});
 
 window.Echo = new Echo({
     broadcaster: 'reverb',
@@ -53,7 +64,7 @@ document.addEventListener('alpine:init', () => {
                             heading: { levels: [1, 2, 3] },
                             codeBlock: false,   // disabled — replaced by CodeBlockLowlight
                         }),
-                        Placeholder.configure({ placeholder: 'Start writing your note...' }),
+                        Placeholder.configure({ placeholder: 'Escribe tu nota...' }),
                         CodeBlockLowlight.configure({ lowlight }),
                     ],
                     content: initialContent,
@@ -124,7 +135,7 @@ document.addEventListener('alpine:init', () => {
             // ── request state
             method:    'GET',
             url:       '',
-            name:      'Untitled Test',
+            name:      'Sin título',
             headers:   [{ key: '', value: '' }],
             body:      '',
             activeTab: 'headers',
@@ -172,7 +183,7 @@ document.addEventListener('alpine:init', () => {
             resetForm() {
                 this.method    = 'GET';
                 this.url       = '';
-                this.name      = 'Untitled Test';
+                this.name    = 'Sin título';
                 this.headers   = [{ key: '', value: '' }];
                 this.body      = '';
                 this.response  = null;

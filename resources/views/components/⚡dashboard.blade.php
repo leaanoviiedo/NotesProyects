@@ -55,7 +55,7 @@ new #[Layout('layouts.app')] class extends Component {
                      class="w-14 h-14 rounded-2xl object-cover ring-2 ring-primary/40 shadow-lg" alt="Avatar">
                 <div>
                     <p class="text-xs font-medium text-primary uppercase tracking-widest">{{ now()->format('l') }}</p>
-                    <h1 class="text-2xl font-bold text-on-background leading-tight">Welcome back, {{ auth()->user()->name }}</h1>
+                    <h1 class="text-2xl font-bold text-on-background leading-tight">Bienvenido, {{ auth()->user()->name }}</h1>
                     <p class="text-sm text-on-surface-variant">{{ now()->format('F j, Y') }}</p>
                 </div>
             </div>
@@ -66,11 +66,11 @@ new #[Layout('layouts.app')] class extends Component {
                 </a>
                 <a href="{{ route('notes') }}" wire:navigate
                    class="flex items-center gap-2 px-4 py-2.5 bg-surface-container-high text-on-surface rounded-xl text-sm font-semibold hover:bg-surface-container-highest transition">
-                    <span class="material-symbols-outlined text-base">edit_note</span> Notes
+                    <span class="material-symbols-outlined text-base">edit_note</span> Notas
                 </a>
                 <a href="{{ route('calendar') }}" wire:navigate
                    class="flex items-center gap-2 px-4 py-2.5 bg-surface-container-high text-on-surface rounded-xl text-sm font-semibold hover:bg-surface-container-highest transition">
-                    <span class="material-symbols-outlined text-base">calendar_month</span> Calendar
+                    <span class="material-symbols-outlined text-base">calendar_month</span> Calendario
                 </a>
             </div>
         </div>
@@ -86,7 +86,7 @@ new #[Layout('layouts.app')] class extends Component {
                 </div>
                 <div>
                     <p class="text-2xl font-bold text-on-background">{{ $totalProjects }}</p>
-                    <p class="text-xs text-on-surface-variant">Projects</p>
+                    <p class="text-xs text-on-surface-variant">Proyectos</p>
                 </div>
             </div>
             <div class="bg-surface-container rounded-2xl p-5 flex items-center gap-4 border border-outline-variant/20 hover:shadow-md transition">
@@ -95,7 +95,7 @@ new #[Layout('layouts.app')] class extends Component {
                 </div>
                 <div>
                     <p class="text-2xl font-bold text-on-background">{{ $totalCards }}</p>
-                    <p class="text-xs text-on-surface-variant">Kanban Cards</p>
+                    <p class="text-xs text-on-surface-variant">Tarjetas Kanban</p>
                 </div>
             </div>
             <div class="bg-surface-container rounded-2xl p-5 flex items-center gap-4 border border-outline-variant/20 hover:shadow-md transition">
@@ -104,7 +104,7 @@ new #[Layout('layouts.app')] class extends Component {
                 </div>
                 <div>
                     <p class="text-2xl font-bold text-on-background">{{ $totalNotes }}</p>
-                    <p class="text-xs text-on-surface-variant">Notes</p>
+                    <p class="text-xs text-on-surface-variant">Notas</p>
                 </div>
             </div>
             <div class="bg-surface-container rounded-2xl p-5 flex items-center gap-4 border border-outline-variant/20 hover:shadow-md transition
@@ -114,51 +114,51 @@ new #[Layout('layouts.app')] class extends Component {
                 </div>
                 <div>
                     <p class="text-2xl font-bold {{ $dueThisWeek > 0 ? 'text-amber-600' : 'text-on-background' }}">{{ $dueThisWeek }}</p>
-                    <p class="text-xs text-on-surface-variant">Due this week</p>
+                    <p class="text-xs text-on-surface-variant">Vence esta semana</p>
                 </div>
             </div>
         </div>
 
         {{-- ═══════════════════ TOOLS GRID ═══════════════════ --}}
         <div>
-            <h2 class="text-sm font-semibold text-on-surface-variant uppercase tracking-widest mb-3">Tools</h2>
+            <h2 class="text-sm font-semibold text-on-surface-variant uppercase tracking-widest mb-3">Herramientas</h2>
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                 <a href="{{ route('kanban') }}" wire:navigate
                    class="group bg-surface-container rounded-2xl p-4 flex flex-col items-center gap-2 border border-outline-variant/20 hover:border-primary/40 hover:bg-primary/5 transition">
                     <span class="material-symbols-outlined text-3xl text-primary group-hover:scale-110 transition-transform">view_kanban</span>
                     <span class="text-xs font-semibold text-on-surface">Kanban</span>
-                    <span class="text-[10px] text-on-surface-variant text-center leading-tight">Task boards &amp; cards</span>
+                    <span class="text-[10px] text-on-surface-variant text-center leading-tight">Tableros y tarjetas</span>
                 </a>
                 <a href="{{ route('notes') }}" wire:navigate
                    class="group bg-surface-container rounded-2xl p-4 flex flex-col items-center gap-2 border border-outline-variant/20 hover:border-secondary/40 hover:bg-secondary/5 transition">
                     <span class="material-symbols-outlined text-3xl text-secondary group-hover:scale-110 transition-transform">edit_note</span>
-                    <span class="text-xs font-semibold text-on-surface">Notes</span>
-                    <span class="text-[10px] text-on-surface-variant text-center leading-tight">Rich text notes</span>
+                    <span class="text-xs font-semibold text-on-surface">Notas</span>
+                    <span class="text-[10px] text-on-surface-variant text-center leading-tight">Notas enriquecidas</span>
                 </a>
                 <a href="{{ route('calendar') }}" wire:navigate
                    class="group bg-surface-container rounded-2xl p-4 flex flex-col items-center gap-2 border border-outline-variant/20 hover:border-tertiary/40 hover:bg-tertiary/5 transition">
                     <span class="material-symbols-outlined text-3xl text-tertiary group-hover:scale-110 transition-transform">calendar_month</span>
-                    <span class="text-xs font-semibold text-on-surface">Calendar</span>
-                    <span class="text-[10px] text-on-surface-variant text-center leading-tight">Events &amp; schedule</span>
+                    <span class="text-xs font-semibold text-on-surface">Calendario</span>
+                    <span class="text-[10px] text-on-surface-variant text-center leading-tight">Eventos y agenda</span>
                 </a>
                 <a href="{{ route('projects') }}" wire:navigate
                    class="group bg-surface-container rounded-2xl p-4 flex flex-col items-center gap-2 border border-outline-variant/20 hover:border-primary/40 hover:bg-primary/5 transition">
                     <span class="material-symbols-outlined text-3xl text-on-surface-variant group-hover:text-primary group-hover:scale-110 transition-transform transition-colors">folder_special</span>
-                    <span class="text-xs font-semibold text-on-surface">Projects</span>
-                    <span class="text-[10px] text-on-surface-variant text-center leading-tight">Manage workspaces</span>
+                    <span class="text-xs font-semibold text-on-surface">Proyectos</span>
+                    <span class="text-[10px] text-on-surface-variant text-center leading-tight">Gestionar proyectos</span>
                 </a>
                 {{-- Coming soon: placeholder tools --}}
                 <div class="relative group bg-surface-container rounded-2xl p-4 flex flex-col items-center gap-2 border border-dashed border-outline-variant/40 opacity-60 cursor-not-allowed">
                     <span class="material-symbols-outlined text-3xl text-on-surface-variant">query_stats</span>
-                    <span class="text-xs font-semibold text-on-surface">Analytics</span>
-                    <span class="text-[10px] text-on-surface-variant text-center leading-tight">Coming soon</span>
-                    <span class="absolute -top-1.5 -right-1.5 text-[9px] bg-primary text-on-primary px-1.5 py-0.5 rounded-full font-bold">SOON</span>
+                    <span class="text-xs font-semibold text-on-surface">Análisis</span>
+                    <span class="text-[10px] text-on-surface-variant text-center leading-tight">Próximamente</span>
+                    <span class="absolute -top-1.5 -right-1.5 text-[9px] bg-primary text-on-primary px-1.5 py-0.5 rounded-full font-bold">PRONTO</span>
                 </div>
                 <div class="relative group bg-surface-container rounded-2xl p-4 flex flex-col items-center gap-2 border border-dashed border-outline-variant/40 opacity-60 cursor-not-allowed">
                     <span class="material-symbols-outlined text-3xl text-on-surface-variant">smart_toy</span>
-                    <span class="text-xs font-semibold text-on-surface">AI Assistant</span>
-                    <span class="text-[10px] text-on-surface-variant text-center leading-tight">Coming soon</span>
-                    <span class="absolute -top-1.5 -right-1.5 text-[9px] bg-primary text-on-primary px-1.5 py-0.5 rounded-full font-bold">SOON</span>
+                    <span class="text-xs font-semibold text-on-surface">Asistente IA</span>
+                    <span class="text-[10px] text-on-surface-variant text-center leading-tight">Próximamente</span>
+                    <span class="absolute -top-1.5 -right-1.5 text-[9px] bg-primary text-on-primary px-1.5 py-0.5 rounded-full font-bold">PRONTO</span>
                 </div>
             </div>
         </div>
@@ -169,9 +169,9 @@ new #[Layout('layouts.app')] class extends Component {
             {{-- Left: Projects (3/5 width) --}}
             <div class="lg:col-span-3 flex flex-col gap-4">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-sm font-semibold text-on-surface-variant uppercase tracking-widest">Active Projects</h2>
+                    <h2 class="text-sm font-semibold text-on-surface-variant uppercase tracking-widest">Proyectos Activos</h2>
                     <a href="{{ route('projects') }}" wire:navigate class="text-xs text-primary hover:underline flex items-center gap-1">
-                        View all <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                        Ver todos <span class="material-symbols-outlined text-sm">arrow_forward</span>
                     </a>
                 </div>
                 @forelse($projects as $project)
@@ -231,15 +231,15 @@ new #[Layout('layouts.app')] class extends Component {
                         {{-- Actions --}}
                         <div class="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition">
                             <a href="{{ route('kanban', ['projectId' => $project->id]) }}" wire:navigate
-                               class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-primary/10 text-on-surface-variant hover:text-primary transition" title="Open Kanban">
+                               class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-primary/10 text-on-surface-variant hover:text-primary transition" title="Abrir Kanban">
                                 <span class="material-symbols-outlined text-sm">view_kanban</span>
                             </a>
                             <a href="{{ route('notes', ['projectId' => $project->id]) }}" wire:navigate
-                               class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-secondary/10 text-on-surface-variant hover:text-secondary transition" title="Open Notes">
+                               class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-secondary/10 text-on-surface-variant hover:text-secondary transition" title="Abrir Notas">
                                 <span class="material-symbols-outlined text-sm">description</span>
                             </a>
                             <a href="{{ route('projects.members', $project) }}" wire:navigate
-                               class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface-variant transition" title="Members">
+                               class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface-variant transition" title="Miembros">
                                 <span class="material-symbols-outlined text-sm">group</span>
                             </a>
                         </div>
@@ -248,10 +248,10 @@ new #[Layout('layouts.app')] class extends Component {
                 @empty
                 <div class="bg-surface-container rounded-2xl border border-dashed border-outline-variant/40 p-10 text-center text-on-surface-variant">
                     <span class="material-symbols-outlined text-5xl block mb-3">folder_open</span>
-                    <p class="text-sm mb-3">No projects yet.</p>
+                    <p class="text-sm mb-3">Sin proyectos aún.</p>
                     <a href="{{ route('projects') }}" wire:navigate
                        class="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-on-primary rounded-xl text-sm font-medium hover:bg-primary/90">
-                        <span class="material-symbols-outlined text-base">add</span> Create your first project
+                        <span class="material-symbols-outlined text-base">add</span> Crea tu primer proyecto
                     </a>
                 </div>
                 @endforelse
@@ -259,7 +259,7 @@ new #[Layout('layouts.app')] class extends Component {
 
             {{-- Right: Activity feed (2/5 width) --}}
             <div class="lg:col-span-2">
-                <h2 class="text-sm font-semibold text-on-surface-variant uppercase tracking-widest mb-4">Recent Activity</h2>
+                <h2 class="text-sm font-semibold text-on-surface-variant uppercase tracking-widest mb-4">Actividad Reciente</h2>
                 <div class="bg-surface-container rounded-2xl border border-outline-variant/20 overflow-hidden">
                     @forelse($recentActivity as $log)
                     <div class="flex items-start gap-3 px-4 py-3 border-b border-outline-variant/10 last:border-0 hover:bg-surface-container-high/50 transition">
@@ -280,7 +280,7 @@ new #[Layout('layouts.app')] class extends Component {
                     @empty
                     <div class="text-center py-10 text-on-surface-variant">
                         <span class="material-symbols-outlined text-4xl block mb-2">history</span>
-                        <p class="text-sm">No activity yet.</p>
+                        <p class="text-sm">Sin actividad aún.</p>
                     </div>
                     @endforelse
                 </div>

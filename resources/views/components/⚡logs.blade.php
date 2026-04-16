@@ -240,7 +240,7 @@ new #[Layout('layouts.app')] class extends Component {
             ->first();
 
         if (!$column) {
-            session()->flash('task_error', 'No Kanban columns found for this project.');
+            session()->flash('task_error', 'No se encontraron columnas Kanban para este proyecto.');
             $this->cancelTaskModal();
             return;
         }
@@ -267,7 +267,7 @@ new #[Layout('layouts.app')] class extends Component {
             'position'    => $maxPos + 1,
         ]);
 
-        session()->flash('task_created', 'Task created in Kanban!');
+        session()->flash('task_created', '¡Tarea creada en Kanban!');
         $this->cancelTaskModal();
     }
 };
@@ -287,7 +287,7 @@ new #[Layout('layouts.app')] class extends Component {
                         {{ empty($projectFilter)
                             ? 'bg-indigo-600 border-indigo-500 text-white'
                             : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200' }}">
-                All Projects
+                Todos los proyectos
             </button>
 
             {{-- Individual project chips --}}
@@ -314,7 +314,7 @@ new #[Layout('layouts.app')] class extends Component {
         <div class="px-4 pb-3 flex flex-wrap items-center gap-2">
 
             {{-- Level chips --}}
-            @foreach(['all' => 'All', 'error' => 'Error', 'warning' => 'Warn', 'info' => 'Info', 'debug' => 'Debug'] as $value => $label)
+            @foreach(['all' => 'Todo', 'error' => 'Error', 'warning' => 'Aviso', 'info' => 'Info', 'debug' => 'Debug'] as $value => $label)
             <button wire:click="$set('levelFilter', '{{ $value }}')"
                     class="px-2.5 py-0.5 rounded-full text-[11px] font-medium border transition-colors
                         {{ $levelFilter === $value
@@ -329,7 +329,7 @@ new #[Layout('layouts.app')] class extends Component {
                 <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-600 text-sm pointer-events-none">search</span>
                 <input wire:model.live.debounce.400ms="search"
                        type="text"
-                       placeholder="Search message / source..."
+                       placeholder="Buscar mensaje / fuente..."
                        class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg pl-8 pr-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/60 w-52 placeholder-slate-600">
             </div>
 
@@ -346,19 +346,19 @@ new #[Layout('layouts.app')] class extends Component {
                         @endunless
                         <span class="relative inline-flex rounded-full h-2 w-2 {{ $paused ? 'bg-amber-400' : 'bg-emerald-500' }}"></span>
                     </span>
-                    {{ $paused ? 'Paused' : 'Live' }}
+                    {{ $paused ? 'Pausado' : 'En vivo' }}
                 </button>
 
                 <button wire:click="refreshLogs"
                         class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 border border-slate-700 text-slate-400 hover:text-slate-200 hover:border-slate-500 transition-colors">
                     <span class="material-symbols-outlined text-sm" wire:loading.class="animate-spin" wire:target="refreshLogs">refresh</span>
-                    Reload
+                    Recargar
                 </button>
 
                 <button wire:click="clearDisplay"
                         class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 border border-slate-700 text-slate-400 hover:text-red-400 hover:border-red-800 transition-colors">
                     <span class="material-symbols-outlined text-sm">close</span>
-                    Clear
+                    Borrar
                 </button>
             </div>
         </div>
@@ -385,19 +385,19 @@ new #[Layout('layouts.app')] class extends Component {
         @if(empty($logs))
         <div class="flex flex-col items-center justify-center h-full gap-3 select-none">
             <div class="text-slate-700 text-4xl font-bold tracking-tighter">[ ]</div>
-            <p class="text-slate-600 text-xs">No logs match the current filters.</p>
-            <p class="text-slate-700 text-[11px]">Send a log via <span class="text-indigo-500">POST /api/logs/{projectId}</span> with the project token.</p>
+            <p class="text-slate-600 text-xs">No hay registros para los filtros actuales.</p>
+            <p class="text-slate-700 text-[11px]">Envía un registro via <span class="text-indigo-500">POST /api/logs/{projectId}</span> con el token del proyecto.</p>
         </div>
         @else
 
         {{-- Column header --}}
         <div class="sticky top-0 bg-slate-900/95 backdrop-blur border-b border-slate-800 px-4 py-1.5 text-[10px] text-slate-600 uppercase tracking-widest flex items-center gap-3 select-none z-10">
-            <span class="w-[130px] shrink-0">Timestamp</span>
-            <span class="w-[68px] shrink-0">Level</span>
-            <span class="w-[110px] shrink-0 hidden sm:block">Project</span>
-            <span class="w-[90px] shrink-0 hidden md:block">Source</span>
-            <span class="flex-1">Message</span>
-            <span class="w-[80px] shrink-0 hidden lg:block text-right">Action</span>
+            <span class="w-[130px] shrink-0">Fecha/Hora</span>
+            <span class="w-[68px] shrink-0">Nivel</span>
+            <span class="w-[110px] shrink-0 hidden sm:block">Proyecto</span>
+            <span class="w-[90px] shrink-0 hidden md:block">Fuente</span>
+            <span class="flex-1">Mensaje</span>
+            <span class="w-[80px] shrink-0 hidden lg:block text-right">Acción</span>
         </div>
 
         <div class="divide-y divide-slate-800/50">
@@ -463,7 +463,7 @@ new #[Layout('layouts.app')] class extends Component {
                     <div class="shrink-0 hidden lg:block text-right">
                         <button wire:click="openConvertModal({{ $log['id'] }})"
                                 class="opacity-0 group-hover:opacity-100 transition-opacity px-2 py-1 rounded text-[10px] font-medium bg-indigo-600/20 border border-indigo-600/40 text-indigo-400 hover:bg-indigo-600/40 hover:text-indigo-200 whitespace-nowrap">
-                            <span class="material-symbols-outlined text-[11px] align-text-bottom">add_task</span> Task
+                            <span class="material-symbols-outlined text-[11px] align-text-bottom">add_task</span> Tarea
                         </button>
                     </div>
                     @endif
@@ -478,14 +478,14 @@ new #[Layout('layouts.app')] class extends Component {
 
     {{-- ═══ STATUS BAR ══════════════════════════════════════════════════════ --}}
     <div class="shrink-0 bg-slate-900 border-t border-slate-800 px-4 py-1.5 flex items-center gap-4 text-[10px] text-slate-600 select-none">
-        <span>{{ count($logs) }} entries</span>
+        <span>{{ count($logs) }} entradas</span>
         @if(!empty($projectFilter))
-            <span>{{ count($projectFilter) }} project(s) selected</span>
+            <span>{{ count($projectFilter) }} proyecto(s) seleccionado(s)</span>
         @else
-            <span>{{ count($userProjects) }} project(s)</span>
+            <span>{{ count($userProjects) }} proyecto(s)</span>
         @endif
         <span class="ml-auto" wire:loading wire:target="refreshLogs,loadLogs">
-            <span class="animate-pulse text-indigo-400">Loading...</span>
+            <span class="animate-pulse text-indigo-400">Cargando...</span>
         </span>
     </div>
 
@@ -499,7 +499,7 @@ new #[Layout('layouts.app')] class extends Component {
             <div class="flex items-center justify-between mb-5 shrink-0">
                 <div class="flex items-center gap-3">
                     <span class="material-symbols-outlined text-indigo-400 text-2xl">key</span>
-                    <h2 class="text-white font-bold text-lg">Webhook Tokens</h2>
+                    <h2 class="text-white font-bold text-lg">Tokens de Webhook</h2>
                 </div>
                 <button wire:click="$set('showTokenPanel', false)"
                         class="text-slate-500 hover:text-slate-300 transition-colors p-1">
@@ -508,7 +508,7 @@ new #[Layout('layouts.app')] class extends Component {
             </div>
 
             <p class="text-slate-500 text-xs mb-5 shrink-0">
-                Each project has its own token. Use it to authenticate <code class="bg-slate-800 px-1 rounded text-indigo-400">POST /api/logs/{projectId}</code> requests.
+                Cada proyecto tiene su propio token. Úsalo para autenticar solicitudes <code class="bg-slate-800 px-1 rounded text-indigo-400">POST /api/logs/{projectId}</code>.
             </p>
 
             <div class="overflow-y-auto flex-1 space-y-4 pr-1">
@@ -542,9 +542,9 @@ new #[Layout('layouts.app')] class extends Component {
                             <span class="material-symbols-outlined text-base" x-text="show ? 'visibility_off' : 'visibility'"></span>
                         </button>
                         <button wire:click="rotateToken({{ $proj['id'] }})"
-                                wire:confirm="Rotate this token? All integrations using the old token will stop working."
+                                wire:confirm="¿Rotar este token? Todas las integraciones que usen el token anterior dejarán de funcionar."
                                 class="shrink-0 text-slate-500 hover:text-amber-400 transition-colors p-1.5 rounded-lg hover:bg-amber-900/20"
-                                title="Rotate token">
+                                title="Rotar token">
                             <span class="material-symbols-outlined text-base" wire:loading.remove wire:target="rotateToken({{ $proj['id'] }})">autorenew</span>
                             <span wire:loading wire:target="rotateToken({{ $proj['id'] }})" class="material-symbols-outlined text-base animate-spin">progress_activity</span>
                         </button>
@@ -552,7 +552,7 @@ new #[Layout('layouts.app')] class extends Component {
 
                     {{-- curl example --}}
                     <details class="mt-3 open:mt-3">
-                        <summary class="text-[10px] text-slate-600 cursor-pointer hover:text-slate-400 transition-colors select-none">curl example</summary>
+                        <summary class="text-[10px] text-slate-600 cursor-pointer hover:text-slate-400 transition-colors select-none">ejemplo curl</summary>
                         <pre class="mt-2 bg-slate-950 text-slate-400 text-[10px] p-3 rounded-lg border border-slate-800 overflow-x-auto leading-relaxed whitespace-pre">curl -X POST {{ url('/api/logs/' . $proj['id']) }} \
   -H "Authorization: Bearer {{ $proj['webhook_token'] }}" \
   -H "Content-Type: application/json" \
@@ -574,27 +574,27 @@ new #[Layout('layouts.app')] class extends Component {
 
             <div class="flex items-center gap-3 mb-5">
                 <span class="material-symbols-outlined text-indigo-400 text-2xl">add_task</span>
-                <h2 class="text-white font-bold text-lg">Convert to Kanban Task</h2>
+                <h2 class="text-white font-bold text-lg">Convertir a Tarea Kanban</h2>
             </div>
 
-            <label class="block text-slate-400 text-xs font-medium mb-1.5">Task Title</label>
+            <label class="block text-slate-400 text-xs font-medium mb-1.5">Título de la Tarea</label>
             <textarea wire:model.defer="taskTitle" rows="3"
                       class="w-full bg-slate-800 border border-slate-700 text-slate-100 text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/60 resize-none placeholder-slate-600"
-                      placeholder="Describe the task..."></textarea>
+                      placeholder="Describe la tarea..."></textarea>
 
             <p class="mt-2 text-slate-600 text-xs">
-                Will be added to the first Kanban column of the originating project with <strong class="text-slate-500">Medium</strong> priority.
+                Se agregará a la primera columna Kanban del proyecto de origen con prioridad <strong class="text-slate-500">Media</strong>.
             </p>
 
             <div class="flex items-center justify-end gap-3 mt-6">
                 <button wire:click="cancelTaskModal"
                         class="px-4 py-2 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 transition-colors border border-slate-700">
-                    Cancel
+                    Cancelar
                 </button>
                 <button wire:click="createTask"
                         class="px-5 py-2 rounded-xl text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-colors shadow-lg shadow-indigo-600/20">
-                    <span wire:loading.remove wire:target="createTask">Create Task</span>
-                    <span wire:loading wire:target="createTask">Creating...</span>
+                    <span wire:loading.remove wire:target="createTask">Crear Tarea</span>
+                    <span wire:loading wire:target="createTask">Creando...</span>
                 </button>
             </div>
         </div>

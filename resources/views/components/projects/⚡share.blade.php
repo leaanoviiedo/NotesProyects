@@ -52,52 +52,52 @@ new #[Layout('layouts.app')] class extends Component {
         <a href="{{ route('projects') }}" wire:navigate class="text-on-surface-variant hover:text-on-surface">
             <span class="material-symbols-outlined">arrow_back</span>
         </a>
-        <h1 class="text-xl font-bold text-on-background">Share: {{ $project->name }}</h1>
+        <h1 class="text-xl font-bold text-on-background">Compartir: {{ $project->name }}</h1>
     </div>
 
     <div class="bg-surface-container rounded-2xl p-5 space-y-4">
-        <h2 class="font-semibold text-on-background">Generate Share Link</h2>
+        <h2 class="font-semibold text-on-background">Generar Enlace Compartido</h2>
         <div class="flex flex-wrap gap-4">
             <label class="flex items-center gap-2 text-sm"><input type="checkbox" wire:model="canKanban" class="accent-primary"> Kanban</label>
-            <label class="flex items-center gap-2 text-sm"><input type="checkbox" wire:model="canNotes" class="accent-primary"> Notes</label>
-            <label class="flex items-center gap-2 text-sm"><input type="checkbox" wire:model="canCalendar" class="accent-primary"> Calendar</label>
+            <label class="flex items-center gap-2 text-sm"><input type="checkbox" wire:model="canNotes" class="accent-primary"> Notas</label>
+            <label class="flex items-center gap-2 text-sm"><input type="checkbox" wire:model="canCalendar" class="accent-primary"> Calendario</label>
         </div>
         <div>
-            <label class="block text-sm font-medium text-on-surface mb-1">Expires at (optional)</label>
+            <label class="block text-sm font-medium text-on-surface mb-1">Vence el (opcional)</label>
             <input wire:model="expiresAt" type="datetime-local"
                 class="rounded-xl border border-outline-variant bg-surface-container px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
         </div>
         <button wire:click="generate"
             class="flex items-center gap-2 px-4 py-2.5 bg-primary text-on-primary rounded-xl text-sm font-medium hover:bg-primary/90 transition">
-            <span class="material-symbols-outlined text-base">link</span> Generate Link
+            <span class="material-symbols-outlined text-base">link</span> Generar Enlace
         </button>
     </div>
 
     <div class="bg-surface-container rounded-2xl p-5 space-y-3">
-        <h2 class="font-semibold text-on-background">Active Links</h2>
+        <h2 class="font-semibold text-on-background">Enlaces Activos</h2>
         @forelse($links as $link)
         <div class="flex items-center gap-3 p-3 rounded-xl bg-surface-container-high">
             <div class="flex-1 min-w-0">
                 <p class="text-xs font-mono text-on-surface-variant truncate">{{ $link->url }}</p>
                 <p class="text-xs text-on-surface-variant mt-0.5">
-                    Kanban: {{ $link->can_kanban ? '✓' : '✗' }} · Notes: {{ $link->can_notes ? '✓' : '✗' }} · Calendar: {{ $link->can_calendar ? '✓' : '✗' }}
-                    @if($link->expires_at) · Expires: {{ $link->expires_at->format('M j, Y') }} @endif
-                    @if(!$link->is_active) · <span class="text-error">Revoked</span> @endif
+                    Kanban: {{ $link->can_kanban ? '✓' : '✗' }} · Notas: {{ $link->can_notes ? '✓' : '✗' }} · Calendario: {{ $link->can_calendar ? '✓' : '✗' }}
+                    @if($link->expires_at) · Vence: {{ $link->expires_at->format('d/m/Y') }} @endif
+                    @if(!$link->is_active) · <span class="text-error">Revocado</span> @endif
                 </p>
             </div>
             @if($link->is_active)
             <button onclick="navigator.clipboard.writeText('{{ $link->url }}')"
-                class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-highest" title="Copy">
+                class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-highest" title="Copiar">
                 <span class="material-symbols-outlined text-sm text-on-surface-variant">content_copy</span>
             </button>
-            <button wire:click="revoke({{ $link->id }})" wire:confirm="Revoke this link?"
-                class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-error-container/30 text-error" title="Revoke">
+            <button wire:click="revoke({{ $link->id }})" wire:confirm="¿Revocar este enlace?"
+                class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-error-container/30 text-error" title="Revocar">
                 <span class="material-symbols-outlined text-sm">link_off</span>
             </button>
             @endif
         </div>
         @empty
-        <p class="text-sm text-on-surface-variant text-center py-4">No share links yet.</p>
+        <p class="text-sm text-on-surface-variant text-center py-4">Sin enlaces aún.</p>
         @endforelse
     </div>
 </div>

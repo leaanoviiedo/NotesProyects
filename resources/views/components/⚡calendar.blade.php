@@ -158,16 +158,16 @@ new #[Layout('layouts.app')] class extends Component {
             @if(!$isConnected)
             <a href="{{ route('google.calendar.redirect') }}"
                 class="flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-high text-on-surface rounded-xl text-xs hover:bg-surface-container-highest">
-                <span class="material-symbols-outlined text-sm">add_link</span> Connect Google
+                <span class="material-symbols-outlined text-sm">add_link</span> Conectar Google
             </a>
             @else
             <span class="flex items-center gap-1 text-xs text-secondary px-3 py-1.5 bg-secondary-container/30 rounded-xl">
-                <span class="material-symbols-outlined text-sm">check_circle</span> Google connected
+                <span class="material-symbols-outlined text-sm">check_circle</span> Google conectado
             </span>
             @endif
             <button wire:click="openNewEvent('')"
                 class="flex items-center gap-1.5 px-4 py-2 bg-primary text-on-primary rounded-xl text-sm font-medium hover:bg-primary/90 transition">
-                <span class="material-symbols-outlined text-base">add</span> New Event
+                <span class="material-symbols-outlined text-base">add</span> Nuevo Evento
             </button>
         </div>
     </div>
@@ -176,7 +176,7 @@ new #[Layout('layouts.app')] class extends Component {
     <div class="flex-1 min-h-0 flex flex-col bg-surface-container rounded-2xl overflow-hidden">
         {{-- Day headers --}}
         <div class="grid grid-cols-7 border-b border-outline-variant/30 shrink-0">
-            @foreach(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] as $day)
+            @foreach(['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'] as $day)
             <div class="py-2 text-center text-xs font-semibold text-on-surface-variant uppercase tracking-wide">{{ $day }}</div>
             @endforeach
         </div>
@@ -212,7 +212,7 @@ new #[Layout('layouts.app')] class extends Component {
                     </button>
                     @endforeach
                     @if(count($dayEvents) > 3)
-                    <span class="text-[10px] text-on-surface-variant px-1">+{{ count($dayEvents) - 3 }} more</span>
+                    <span class="text-[10px] text-on-surface-variant px-1">+{{ count($dayEvents) - 3 }} más</span>
                     @endif
                 </div>
             </div>
@@ -225,28 +225,28 @@ new #[Layout('layouts.app')] class extends Component {
     @if($showModal)
     <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" wire:click.self="$set('showModal', false)">
         <div class="bg-surface-container-lowest rounded-2xl shadow-xl p-6 w-full max-w-md">
-            <h2 class="text-lg font-bold text-on-background mb-4">{{ $editingId ? 'Edit Event' : 'New Event' }}</h2>
+            <h2 class="text-lg font-bold text-on-background mb-4">{{ $editingId ? 'Editar Evento' : 'Nuevo Evento' }}</h2>
             <form wire:submit="saveEvent" class="space-y-3">
                 <div>
-                    <label class="block text-sm font-medium mb-1">Title <span class="text-error">*</span></label>
-                    <input wire:model="eventTitle" type="text" autofocus placeholder="Event title"
+                    <label class="block text-sm font-medium mb-1">Título <span class="text-error">*</span></label>
+                    <input wire:model="eventTitle" type="text" autofocus placeholder="Título del evento"
                         class="w-full rounded-xl border border-outline-variant bg-surface-container px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
                     @error('eventTitle')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1">Description</label>
+                    <label class="block text-sm font-medium mb-1">Descripción</label>
                     <textarea wire:model="eventDescription" rows="2"
                         class="w-full rounded-xl border border-outline-variant bg-surface-container px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"></textarea>
                 </div>
                 <div class="flex gap-3">
                     <div class="flex-1">
-                        <label class="block text-sm font-medium mb-1">Start Date <span class="text-error">*</span></label>
+                        <label class="block text-sm font-medium mb-1">Fecha de inicio <span class="text-error">*</span></label>
                         <input wire:model="eventDate" type="date"
                             class="w-full rounded-xl border border-outline-variant bg-surface-container px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
                         @error('eventDate')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
                     <div class="flex-1">
-                        <label class="block text-sm font-medium mb-1">End Date</label>
+                        <label class="block text-sm font-medium mb-1">Fecha de fin</label>
                         <input wire:model="eventEndDate" type="date"
                             class="w-full rounded-xl border border-outline-variant bg-surface-container px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
                     </div>
@@ -257,21 +257,21 @@ new #[Layout('layouts.app')] class extends Component {
                         <input wire:model="eventColor" type="color" class="h-10 w-14 rounded-xl border border-outline-variant cursor-pointer" />
                     </div>
                     <label class="flex items-center gap-2 text-sm mt-4 cursor-pointer">
-                        <input wire:model="eventAllDay" type="checkbox" class="accent-primary"> All day
+                        <input wire:model="eventAllDay" type="checkbox" class="accent-primary"> Todo el día
                     </label>
                 </div>
                 <div class="flex justify-between pt-2">
                     @if($editingId)
-                    <button type="button" wire:click="deleteEvent({{ $editingId }})" wire:confirm="Delete this event?"
-                        class="px-3 py-2 rounded-xl text-sm text-error hover:bg-error-container/30">Delete</button>
+                    <button type="button" wire:click="deleteEvent({{ $editingId }})" wire:confirm="¿Eliminar este evento?"
+                        class="px-3 py-2 rounded-xl text-sm text-error hover:bg-error-container/30">Eliminar</button>
                     @else
                     <span></span>
                     @endif
                     <div class="flex gap-3">
                         <button type="button" wire:click="$set('showModal', false)"
-                            class="px-4 py-2 rounded-xl text-sm text-on-surface hover:bg-surface-container-high">Cancel</button>
+                            class="px-4 py-2 rounded-xl text-sm text-on-surface hover:bg-surface-container-high">Cancelar</button>
                         <button type="submit"
-                            class="px-4 py-2 bg-primary text-on-primary rounded-xl text-sm font-medium hover:bg-primary/90">Save</button>
+                            class="px-4 py-2 bg-primary text-on-primary rounded-xl text-sm font-medium hover:bg-primary/90">Guardar</button>
                     </div>
                 </div>
             </form>

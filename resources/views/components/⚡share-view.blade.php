@@ -159,7 +159,7 @@ new #[Layout('layouts.share')] class extends Component {
                 </button>
                 <button wire:click="switchTab('notes')"
                     class="px-3 py-1.5 {{ $activeTab === 'notes' ? 'bg-primary text-on-primary font-medium' : 'text-on-surface-variant hover:bg-surface-container-high' }} transition">
-                    <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">description</span> Notes</span>
+                    <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">description</span> Notas</span>
                 </button>
             </div>
             @endif
@@ -172,13 +172,13 @@ new #[Layout('layouts.share')] class extends Component {
                     class="group flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600/10 text-indigo-600 text-sm font-medium hover:bg-error-container/30 hover:text-error transition">
                     <span class="material-symbols-outlined text-base group-hover:hidden">bookmark</span>
                     <span class="material-symbols-outlined text-base hidden group-hover:inline">bookmark_remove</span>
-                    <span class="group-hover:hidden">Saved</span>
-                    <span class="hidden group-hover:inline">Remove</span>
+                    <span class="group-hover:hidden">Guardado</span>
+                    <span class="hidden group-hover:inline">Quitar</span>
                 </button>
                 @else
                 <button wire:click="saveProject"
                     class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-medium hover:bg-indigo-600/10 hover:text-indigo-600 transition border border-outline-variant/50">
-                    <span class="material-symbols-outlined text-base">bookmark_add</span> Save project
+                    <span class="material-symbols-outlined text-base">bookmark_add</span> Guardar proyecto
                 </button>
                 @endif
             @endif
@@ -186,7 +186,7 @@ new #[Layout('layouts.share')] class extends Component {
             {{-- Guest: prompt to sign in to save --}}
             <a href="{{ route('login') }}"
                class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-500 transition shadow-sm shadow-indigo-600/20">
-                <span class="material-symbols-outlined text-base">bookmark_add</span> Sign in to save
+                <span class="material-symbols-outlined text-base">bookmark_add</span> Iniciar sesión para guardar
             </a>
             @endauth
         </div>
@@ -202,7 +202,7 @@ new #[Layout('layouts.share')] class extends Component {
             <div class="flex items-center justify-center h-full text-on-surface-variant">
                 <div class="text-center">
                     <span class="material-symbols-outlined text-5xl block mb-3">view_kanban</span>
-                    <p>No columns yet.</p>
+                    <p>Sin columnas aún.</p>
                 </div>
             </div>
             @else
@@ -239,12 +239,12 @@ new #[Layout('layouts.share')] class extends Component {
                                 @endif
                                 <span class="text-[10px] px-1.5 py-0.5 rounded-full font-medium
                                     {{ $card['priority'] == 3 ? 'bg-error-container/40 text-error' : ($card['priority'] == 2 ? 'bg-tertiary-container/40 text-tertiary' : 'bg-surface-container-high text-on-surface-variant') }}">
-                                    {{ $card['priority'] == 3 ? 'High' : ($card['priority'] == 2 ? 'Med' : 'Low') }}
+                                    {{ $card['priority'] == 3 ? 'Alta' : ($card['priority'] == 2 ? 'Media' : 'Baja') }}
                                 </span>
                             </div>
                         </div>
                         @empty
-                        <div class="text-center py-4 text-on-surface-variant/50 text-xs">Empty column</div>
+                        <div class="text-center py-4 text-on-surface-variant/50 text-xs">Columna vacía</div>
                         @endforelse
                     </div>
                 </div>
@@ -267,7 +267,7 @@ new #[Layout('layouts.share')] class extends Component {
                         {{ $note['title'] }}
                     </p>
                     <p class="text-xs text-on-surface-variant mt-0.5 line-clamp-2">
-                        {{ html_entity_decode(strip_tags($note['content'] ?? 'No content')) }}
+                        {{ html_entity_decode(strip_tags($note['content'] ?? 'Sin contenido')) }}
                     </p>
                     <div class="flex items-center gap-2 mt-1">
                         @if($note['category'])
@@ -281,7 +281,7 @@ new #[Layout('layouts.share')] class extends Component {
                 @empty
                 <div class="text-center py-12 text-on-surface-variant">
                     <span class="material-symbols-outlined text-4xl block mb-2">notes</span>
-                    <p class="text-sm">No notes yet.</p>
+                    <p class="text-sm">Sin notas aún.</p>
                 </div>
                 @endforelse
             </aside>
@@ -297,7 +297,7 @@ new #[Layout('layouts.share')] class extends Component {
                         <span class="text-xs bg-primary/10 text-primary px-2.5 py-0.5 rounded-full mb-5 inline-block">{{ $activeNote['category'] }}</span>
                         @endif
                         <p class="text-xs text-on-surface-variant mb-6">
-                            Updated {{ \Carbon\Carbon::parse($activeNote['updated_at'])->diffForHumans() }}
+                            Actualizado {{ \Carbon\Carbon::parse($activeNote['updated_at'])->diffForHumans() }}
                         </p>
                         <div class="text-sm text-on-surface ProseMirror">
                             {!! $activeNote['content'] !!}
@@ -308,7 +308,7 @@ new #[Layout('layouts.share')] class extends Component {
                 <div class="flex items-center justify-center h-full text-on-surface-variant">
                     <div class="text-center">
                         <span class="material-symbols-outlined text-4xl block mb-2">arrow_back</span>
-                        <p class="text-sm">Select a note to read it</p>
+                        <p class="text-sm">Selecciona una nota para leerla</p>
                     </div>
                 </div>
                 @endif
@@ -317,7 +317,7 @@ new #[Layout('layouts.share')] class extends Component {
 
         @else
         <div class="flex items-center justify-center h-full text-on-surface-variant">
-            <p>Nothing to display.</p>
+            <p>Nada que mostrar.</p>
         </div>
         @endif
 

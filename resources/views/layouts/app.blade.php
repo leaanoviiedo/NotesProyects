@@ -47,7 +47,7 @@
                     <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
                     <input
                         class="w-full bg-surface-container-low border-none rounded-full pl-10 pr-4 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-                        placeholder="Global search commands..."
+                        placeholder="Búsqueda global..."
                         type="text"
                     />
                 </div>
@@ -56,7 +56,7 @@
                 <nav class="hidden md:flex items-center gap-1 shrink-0">
                     <a href="{{ route('dashboard') }}"
                        class="px-3 lg:px-4 h-16 flex items-center text-sm font-medium hover:text-slate-900 transition-all whitespace-nowrap {{ request()->routeIs('dashboard') ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500' }}">
-                        Home
+                        Inicio
                     </a>
                     <a href="{{ route('kanban') }}"
                        class="px-3 lg:px-4 h-16 flex items-center text-sm font-medium hover:text-slate-900 transition-all whitespace-nowrap {{ request()->routeIs('kanban') ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500' }}">
@@ -64,11 +64,11 @@
                     </a>
                     <a href="{{ route('notes') }}"
                        class="px-3 lg:px-4 h-16 flex items-center text-sm font-medium hover:text-slate-900 transition-all {{ request()->routeIs('notes') ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500' }}">
-                        Notes
+                        Notas
                     </a>
                     <a href="{{ route('calendar') }}"
                        class="px-3 lg:px-4 h-16 flex items-center text-sm font-medium hover:text-slate-900 transition-all {{ request()->routeIs('calendar') ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500' }}">
-                        Calendar
+                        Calendario
                     </a>
                     <a href="{{ route('api-tester') }}"
                        class="px-3 lg:px-4 h-16 flex items-center gap-1 text-sm font-medium hover:text-slate-900 transition-all whitespace-nowrap {{ request()->routeIs('api-tester') ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500' }}">
@@ -76,22 +76,22 @@
                     </a>
                     <a href="{{ route('logs') }}"
                        class="px-3 lg:px-4 h-16 flex items-center gap-1 text-sm font-medium hover:text-slate-900 transition-all whitespace-nowrap {{ request()->routeIs('logs') ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500' }}">
-                        <span class="material-symbols-outlined text-base">terminal</span> Logs
+                        <span class="material-symbols-outlined text-base">terminal</span> Registros
                     </a>
                     <a href="{{ route('snippets') }}"
                        class="px-3 lg:px-4 h-16 flex items-center gap-1 text-sm font-medium hover:text-slate-900 transition-all whitespace-nowrap {{ request()->routeIs('snippets') ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500' }}">
-                        <span class="material-symbols-outlined text-base">code_blocks</span> Snippets
+                        <span class="material-symbols-outlined text-base">code_blocks</span> Fragmentos
                     </a>
                 </nav>
 
                 {{-- Current page label (mobile) --}}
                 <span class="md:hidden font-semibold text-sm text-on-background truncate">
                     @if(request()->routeIs('kanban')) Kanban
-                    @elseif(request()->routeIs('notes')) Notes
-                    @elseif(request()->routeIs('calendar')) Calendar
-                    @elseif(request()->routeIs('api-tester')) API Tester
-                    @elseif(request()->routeIs('logs')) Log Console
-                    @elseif(request()->routeIs('snippets')) Snippets
+                    @elseif(request()->routeIs('notes')) Notas
+                    @elseif(request()->routeIs('calendar')) Calendario
+                    @elseif(request()->routeIs('api-tester')) Tester API
+                    @elseif(request()->routeIs('logs')) Registros
+                    @elseif(request()->routeIs('snippets')) Fragmentos
                     @else DevOS Pro
                     @endif
                 </span>
@@ -108,7 +108,7 @@
                     </button>
                 </div>
                 <button class="hidden sm:block bg-primary text-on-primary px-4 lg:px-5 py-1.5 rounded-full text-sm font-semibold shadow-md shadow-indigo-600/20 hover:scale-105 transition-transform active:scale-95">
-                    Deploy
+                    Desplegar
                 </button>
                 <div class="h-8 w-8 rounded-full overflow-hidden bg-indigo-500 flex items-center justify-center shrink-0">
                     @auth
@@ -135,12 +135,12 @@
             <a href="{{ route('notes') }}"
                class="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 {{ request()->routeIs('notes') ? 'text-indigo-600' : 'text-slate-400' }}">
                 <span class="material-symbols-outlined text-xl">description</span>
-                <span class="text-[10px] font-medium">Notes</span>
+                <span class="text-[10px] font-medium">Notas</span>
             </a>
             <a href="{{ route('calendar') }}"
                class="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 {{ request()->routeIs('calendar') ? 'text-indigo-600' : 'text-slate-400' }}">
                 <span class="material-symbols-outlined text-xl">calendar_month</span>
-                <span class="text-[10px] font-medium">Calendar</span>
+                <span class="text-[10px] font-medium">Calendario</span>
             </a>
             <a href="{{ route('api-tester') }}"
                class="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 {{ request()->routeIs('api-tester') ? 'text-indigo-600' : 'text-slate-400' }}">
@@ -150,12 +150,12 @@
             <a href="{{ route('logs') }}"
                class="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 {{ request()->routeIs('logs') ? 'text-indigo-600' : 'text-slate-400' }}">
                 <span class="material-symbols-outlined text-xl">terminal</span>
-                <span class="text-[10px] font-medium">Logs</span>
+                <span class="text-[10px] font-medium">Registros</span>
             </a>
             <a href="{{ route('snippets') }}"
                class="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 {{ request()->routeIs('snippets') ? 'text-indigo-600' : 'text-slate-400' }}">
                 <span class="material-symbols-outlined text-xl">code_blocks</span>
-                <span class="text-[10px] font-medium">Snippets</span>
+                <span class="text-[10px] font-medium">Fragmentos</span>
             </a>
         </nav>
 
