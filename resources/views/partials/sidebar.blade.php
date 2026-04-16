@@ -197,6 +197,12 @@
             <span class="material-symbols-outlined text-xl shrink-0 {{ request()->routeIs('api-tester') ? 'text-indigo-400' : 'text-slate-500' }}">api</span>
             <span class="text-sm">API Tester</span>
         </a>
+        <a href="{{ route('logs') }}"
+           @click="sidebarOpen = false"
+           class="flex items-center gap-3 px-3 py-2 rounded-xl {{ request()->routeIs('logs') ? 'text-white font-semibold bg-indigo-600/20' : 'text-slate-400 font-medium' }} hover:bg-slate-800 transition-colors">
+            <span class="material-symbols-outlined text-xl shrink-0 {{ request()->routeIs('logs') ? 'text-indigo-400' : 'text-slate-500' }}">terminal</span>
+            <span class="text-sm">Log Console</span>
+        </a>
     </nav>
 
     {{-- Footer --}}

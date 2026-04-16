@@ -9,9 +9,19 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Project extends Model
 {
-    protected $fillable = ['name', 'description', 'color', 'icon', 'owner_id', 'is_archived', 'is_personal', 'is_favorite', 'links'];
+    protected $fillable = ['name', 'description', 'color', 'icon', 'owner_id', 'is_archived', 'is_personal', 'is_favorite', 'links', 'webhook_token'];
 
     protected $casts = ['is_archived' => 'boolean', 'is_personal' => 'boolean', 'is_favorite' => 'boolean', 'links' => 'array'];
+
+    protected static function boot(): void
+    {
+        parent::boot();
+        static::creating(function (self $project) {
+            if (empty($project->webhook_token)) {
+                $project->webhook_token = bin2hex(random_bytes(32));
+            }
+        });
+    }
 
     public function owner(): BelongsTo
     {
