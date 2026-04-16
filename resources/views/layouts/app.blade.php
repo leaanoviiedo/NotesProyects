@@ -37,28 +37,79 @@
         </div>
 
         {{-- Nav links --}}
-        <nav class="flex-1 space-y-1 overflow-y-auto min-h-0">
-            <a href="{{ route('kanban') }}"
+        <nav class="flex-1 space-y-0.5 overflow-y-auto min-h-0">
+            {{-- Dashboard --}}
+            <a href="{{ route('dashboard') }}"
                @click="sidebarOpen = false"
-               class="flex items-center gap-3 px-3 py-2 rounded-xl {{ request()->routeIs('kanban') ? 'text-white font-semibold bg-indigo-600/20' : 'text-slate-400 font-medium' }} hover:bg-slate-800 transition-colors">
-                <span class="material-symbols-outlined text-xl shrink-0 {{ request()->routeIs('kanban') ? 'text-indigo-400' : 'text-slate-500' }}">dashboard</span>
+               class="flex items-center gap-3 px-3 py-2 rounded-xl {{ request()->routeIs('dashboard') ? 'text-white font-semibold bg-indigo-600/20' : 'text-slate-400 font-medium' }} hover:bg-slate-800 transition-colors">
+                <span class="material-symbols-outlined text-xl shrink-0 {{ request()->routeIs('dashboard') ? 'text-indigo-400' : 'text-slate-500' }}">home</span>
                 <span class="text-sm">Dashboard</span>
             </a>
 
-            <div class="pt-4 pb-2 px-3">
-                <span class="text-slate-600 font-label text-[10px] uppercase tracking-widest">Active Projects</span>
+            {{-- Projects accordion --}}
+            @auth
+            @php
+                $sidebarProjects = \App\Models\Project::where(function ($q) {
+                    $q->where('owner_id', auth()->id())
+                      ->orWhereHas('members', fn ($sq) => $sq->where('user_id', auth()->id()));
+                })->where('is_archived', false)
+                  ->orderByDesc('is_personal')
+                  ->orderByDesc('is_favorite')
+                  ->orderBy('name')
+                  ->get(['id','name','color','is_personal','is_favorite']);
+            @endphp
+            <div x-data="{ projectsOpen: {{ request()->routeIs('projects*') || request()->routeIs('kanban') || request()->routeIs('notes') ? 'true' : 'true' }} }">
+                {{-- Projects section header --}}
+                <button @click="projectsOpen = !projectsOpen"
+                    class="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-xl {{ request()->routeIs('projects*') ? 'text-white font-semibold bg-indigo-600/20' : 'text-slate-400 font-medium' }} hover:bg-slate-800 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-xl shrink-0 {{ request()->routeIs('projects*') ? 'text-indigo-400' : 'text-slate-500' }}">folder_open</span>
+                        <span class="text-sm">Projects</span>
+                    </div>
+                    <span class="material-symbols-outlined text-base text-slate-600 transition-transform duration-200"
+                          :class="projectsOpen ? 'rotate-90' : ''">chevron_right</span>
+                </button>
+
+                {{-- Project list --}}
+                <div x-show="projectsOpen" x-cloak class="mt-1 ml-2 space-y-0.5">
+                    @foreach($sidebarProjects as $proj)
+                    <div x-data="{ subOpen: false }">
+                        <button @click="subOpen = !subOpen"
+                            class="w-full flex items-center justify-between gap-2 pl-4 pr-2 py-1.5 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <span class="w-2 h-2 rounded-full shrink-0" style="background-color: {{ $proj->color ?? '#6366f1' }}"></span>
+                                <span class="text-xs truncate">{{ $proj->name }}</span>
+                                @if($proj->is_personal)<span class="text-[9px] opacity-60 shrink-0">👤</span>@endif
+                                @if($proj->is_favorite)<span class="text-[9px] text-amber-400 shrink-0">★</span>@endif
+                            </div>
+                            <span class="material-symbols-outlined text-xs text-slate-600 transition-transform duration-200 shrink-0"
+                                  :class="subOpen ? 'rotate-90' : ''">chevron_right</span>
+                        </button>
+                        <div x-show="subOpen" x-cloak class="ml-6 mt-0.5 space-y-0.5">
+                            <a href="{{ route('kanban', ['projectId' => $proj->id]) }}"
+                               @click="sidebarOpen = false"
+                               class="flex items-center gap-2 px-3 py-1 rounded-lg text-slate-500 hover:bg-slate-800 hover:text-slate-300 transition-colors text-[11px]">
+                                <span class="material-symbols-outlined text-sm">view_kanban</span> Kanban
+                            </a>
+                            <a href="{{ route('notes', ['projectId' => $proj->id]) }}"
+                               @click="sidebarOpen = false"
+                               class="flex items-center gap-2 px-3 py-1 rounded-lg text-slate-500 hover:bg-slate-800 hover:text-slate-300 transition-colors text-[11px]">
+                                <span class="material-symbols-outlined text-sm">description</span> Notes
+                            </a>
+                        </div>
+                    </div>
+                    @endforeach
+
+                    {{-- All projects link --}}
+                    <a href="{{ route('projects') }}" @click="sidebarOpen = false"
+                        class="flex items-center gap-2 pl-4 pr-2 py-1.5 rounded-xl text-indigo-400/80 hover:bg-slate-800 hover:text-indigo-300 transition-colors text-xs font-medium">
+                        <span class="material-symbols-outlined text-sm">apps</span> All Projects
+                    </a>
+                </div>
             </div>
+            @endauth
 
-            <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-white font-semibold bg-indigo-600/20 hover:bg-slate-800 transition-colors">
-                <span class="material-symbols-outlined text-indigo-500 text-xl shrink-0">folder_open</span>
-                <span class="text-sm truncate">OptimusPanel</span>
-            </a>
-            <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-400 font-medium hover:bg-slate-800 transition-colors">
-                <span class="material-symbols-outlined text-slate-500 text-xl shrink-0">folder_open</span>
-                <span class="text-sm truncate">Financial Dashboard</span>
-            </a>
-
-            <div class="pt-4 pb-2 px-3">
+            <div class="pt-4 pb-1.5 px-3">
                 <span class="text-slate-600 font-label text-[10px] uppercase tracking-widest">Workspace</span>
             </div>
 
@@ -84,18 +135,21 @@
 
         {{-- Footer actions --}}
         <div class="mt-4 space-y-1 shrink-0">
-            <button class="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-4 rounded-xl transition-all active:scale-95 mb-4 shadow-lg shadow-indigo-600/20">
+            <a href="{{ route('projects') }}" wire:navigate class="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-4 rounded-xl transition-all active:scale-95 mb-4 shadow-lg shadow-indigo-600/20">
                 <span class="material-symbols-outlined text-xl">add</span>
                 <span class="text-sm">New Project</span>
-            </button>
-            <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-400 font-medium hover:bg-slate-800 transition-colors">
+            </a>
+            <a href="{{ route('dashboard') }}" wire:navigate class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-400 font-medium hover:bg-slate-800 transition-colors">
                 <span class="material-symbols-outlined text-xl">settings</span>
                 <span class="text-sm">Settings</span>
             </a>
-            <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-400 font-medium hover:bg-slate-800 transition-colors">
-                <span class="material-symbols-outlined text-slate-500 text-xl">logout</span>
-                <span class="text-sm">Logout</span>
-            </a>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-slate-400 font-medium hover:bg-slate-800 transition-colors">
+                    <span class="material-symbols-outlined text-slate-500 text-xl">logout</span>
+                    <span class="text-sm">Logout</span>
+                </button>
+            </form>
         </div>
     </aside>
 
@@ -125,9 +179,13 @@
 
                 {{-- Tab navigation (md+) --}}
                 <nav class="hidden md:flex items-center gap-1 shrink-0">
+                    <a href="{{ route('dashboard') }}"
+                       class="px-3 lg:px-4 h-16 flex items-center text-sm font-medium hover:text-slate-900 transition-all whitespace-nowrap {{ request()->routeIs('dashboard') ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500' }}">
+                        Home
+                    </a>
                     <a href="{{ route('kanban') }}"
                        class="px-3 lg:px-4 h-16 flex items-center text-sm font-medium hover:text-slate-900 transition-all whitespace-nowrap {{ request()->routeIs('kanban') ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500' }}">
-                        Kanban Board
+                        Kanban
                     </a>
                     <a href="{{ route('notes') }}"
                        class="px-3 lg:px-4 h-16 flex items-center text-sm font-medium hover:text-slate-900 transition-all {{ request()->routeIs('notes') ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500' }}">
@@ -163,7 +221,11 @@
                     Deploy
                 </button>
                 <div class="h-8 w-8 rounded-full overflow-hidden bg-indigo-500 flex items-center justify-center shrink-0">
-                    <span class="text-white text-sm font-bold">U</span>
+                    @auth
+                    <img src="{{ auth()->user()->avatar_url }}" alt="" class="w-full h-full object-cover">
+                    @else
+                    <span class="text-white text-sm font-bold">?</span>
+                    @endauth
                 </div>
             </div>
         </header>

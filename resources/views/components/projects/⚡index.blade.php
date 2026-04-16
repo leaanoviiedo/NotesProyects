@@ -1,0 +1,177 @@
+<?php
+use Livewire\Component;
+use Livewire\Attributes\Layout;
+use App\Models\Project;
+use App\Models\ActivityLog;
+
+new #[Layout('layouts.app')] class extends Component {
+    public $projects;
+    public bool $showModal = false;
+    public string $name = '';
+    public string $description = '';
+    public string $color = '#3525cd';
+    public string $icon = 'folder';
+
+    protected $rules = ['name' => 'required|string|max:255', 'description' => 'nullable|string', 'color' => 'required', 'icon' => 'nullable|string|max:50'];
+
+    public function mount(): void { $this->loadProjects(); }
+
+    public function loadProjects(): void {
+        $user = auth()->user();
+        $projectIds = Project::where('owner_id', $user->id)
+            ->orWhereHas('members', fn($q) => $q->where('user_id', $user->id))
+            ->pluck('id');
+
+        $this->projects = Project::whereIn('id', $projectIds)
+            ->withCount(['kanbanCards', 'notes', 'members'])
+            ->orderByDesc('is_favorite')
+            ->orderByDesc('is_personal')
+            ->orderBy('name')
+            ->get();
+    }
+
+    public function toggleFavorite(int $id): void {
+        $project = Project::where('owner_id', auth()->id())->findOrFail($id);
+        $project->update(['is_favorite' => !$project->is_favorite]);
+        $this->loadProjects();
+    }
+
+    public function createProject(): void {
+        $this->validate();
+        $project = Project::create([
+            'name' => $this->name,
+            'description' => $this->description,
+            'color' => $this->color,
+            'icon' => $this->icon,
+            'owner_id' => auth()->id(),
+        ]);
+        ActivityLog::record('project_created', 'Created project "' . $project->name . '"', $project);
+        $this->reset(['name','description','color','icon','showModal']);
+        $this->color = '#3525cd';
+        $this->loadProjects();
+    }
+
+    public function archiveProject(int $id): void {
+        $project = Project::where('owner_id', auth()->id())->findOrFail($id);
+        $project->update(['is_archived' => !$project->is_archived]);
+        $this->loadProjects();
+    }
+
+    public function deleteProject(int $id): void {
+        $project = Project::where('owner_id', auth()->id())->findOrFail($id);
+        $project->delete();
+        $this->loadProjects();
+    }
+};
+?>
+<div class="p-4 md:p-6 space-y-6">
+    <div class="flex items-center justify-between">
+        <h1 class="text-xl font-bold text-on-background">Projects</h1>
+        <button wire:click="$set('showModal', true)"
+            class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-xl text-sm font-medium hover:bg-primary/90 transition">
+            <span class="material-symbols-outlined text-base">add</span> New Project
+        </button>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        @forelse($projects as $project)
+        <div class="bg-surface-container rounded-2xl p-4 flex flex-col gap-3" x-data="{ open: false }">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shrink-0"
+                    style="background-color: {{ $project->color ?? '#3525cd' }}">
+                    <span class="material-symbols-outlined">{{ $project->icon ?? 'folder' }}</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-on-surface truncate flex items-center gap-1">
+                        {{ $project->name }}
+                        @if($project->is_personal)<span class="text-[10px] text-on-surface-variant bg-surface-container-high px-1.5 py-0.5 rounded-full">Personal</span>@endif
+                    </p>
+                    @if($project->is_archived)
+                    <span class="text-xs bg-surface-container-highest text-on-surface-variant px-2 py-0.5 rounded-full">Archived</span>
+                    @endif
+                </div>
+                {{-- Favorite toggle --}}
+                @if($project->owner_id === auth()->id())
+                <button wire:click="toggleFavorite({{ $project->id }})"
+                    title="{{ $project->is_favorite ? 'Remove from favorites' : 'Add to favorites' }}"
+                    class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-high transition shrink-0 {{ $project->is_favorite ? 'text-amber-400' : 'text-on-surface-variant/40' }}">
+                    <span class="material-symbols-outlined text-lg">{{ $project->is_favorite ? 'star' : 'star_outline' }}</span>
+                </button>
+                @endif
+                <div class="relative shrink-0">
+                    <button @click="open = !open" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-high">
+                        <span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+                    </button>
+                    <div x-show="open" @click.outside="open = false" x-cloak
+                        class="absolute right-0 top-9 w-44 bg-surface-container-highest rounded-xl shadow-lg border border-outline-variant/30 py-1 z-10">
+                        <a href="{{ route('projects.members', $project) }}" wire:navigate class="flex items-center gap-2 px-4 py-2 text-sm text-on-surface hover:bg-surface-container-high">
+                            <span class="material-symbols-outlined text-sm">group</span> Members
+                        </a>
+                        <a href="{{ route('projects.share', $project) }}" wire:navigate class="flex items-center gap-2 px-4 py-2 text-sm text-on-surface hover:bg-surface-container-high">
+                            <span class="material-symbols-outlined text-sm">share</span> Share
+                        </a>
+                        @if($project->owner_id === auth()->id())
+                        <button wire:click="archiveProject({{ $project->id }})" class="flex w-full items-center gap-2 px-4 py-2 text-sm text-on-surface hover:bg-surface-container-high">
+                            <span class="material-symbols-outlined text-sm">archive</span> {{ $project->is_archived ? 'Unarchive' : 'Archive' }}
+                        </button>
+                        <button wire:click="deleteProject({{ $project->id }})" wire:confirm="Delete this project?"
+                            class="flex w-full items-center gap-2 px-4 py-2 text-sm text-error hover:bg-error-container/30">
+                            <span class="material-symbols-outlined text-sm">delete</span> Delete
+                        </button>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            <p class="text-sm text-on-surface-variant line-clamp-2">{{ $project->description ?: 'No description.' }}</p>
+            <div class="flex items-center gap-4 text-xs text-on-surface-variant mt-auto">
+                <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">view_kanban</span>{{ $project->kanban_cards_count }}</span>
+                <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">notes</span>{{ $project->notes_count }}</span>
+                <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">group</span>{{ $project->members_count }}</span>
+            </div>
+        </div>
+        @empty
+        <div class="col-span-full text-center py-16 text-on-surface-variant">
+            <span class="material-symbols-outlined text-5xl block mb-3">folder_open</span>
+            <p class="text-base">No projects yet. Create your first one!</p>
+        </div>
+        @endforelse
+    </div>
+
+    @if($showModal)
+    <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" wire:click.self="$set('showModal', false)">
+        <div class="bg-surface-container-lowest rounded-2xl shadow-xl p-6 w-full max-w-md">
+            <h2 class="text-lg font-bold text-on-background mb-4">New Project</h2>
+            <form wire:submit="createProject" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-on-surface mb-1">Name</label>
+                    <input wire:model="name" type="text" placeholder="Project name"
+                        class="w-full rounded-xl border border-outline-variant bg-surface-container px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                    @error('name')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-on-surface mb-1">Description</label>
+                    <textarea wire:model="description" rows="3" placeholder="Optional description"
+                        class="w-full rounded-xl border border-outline-variant bg-surface-container px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"></textarea>
+                </div>
+                <div class="flex gap-4">
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-on-surface mb-1">Color</label>
+                        <input wire:model="color" type="color" class="w-full h-10 rounded-xl border border-outline-variant cursor-pointer" />
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-on-surface mb-1">Icon (Material Symbol)</label>
+                        <input wire:model="icon" type="text" placeholder="e.g. folder"
+                            class="w-full rounded-xl border border-outline-variant bg-surface-container px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" wire:click="$set('showModal', false)"
+                        class="px-4 py-2 rounded-xl text-sm text-on-surface hover:bg-surface-container-high">Cancel</button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-primary text-on-primary rounded-xl text-sm font-medium hover:bg-primary/90">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endif
+</div>
