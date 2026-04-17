@@ -17,7 +17,7 @@ RUN npm run build
 # =============================================================================
 # Stage 2: Production image
 # =============================================================================
-FROM php:8.3-fpm-alpine AS app
+FROM php:8.4-fpm-alpine AS app
 
 LABEL maintainer="NotesProjects"
 LABEL description="Laravel app with Reverb WebSocket, Queue Worker and Scheduler"
