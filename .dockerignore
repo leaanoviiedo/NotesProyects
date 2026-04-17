@@ -1,0 +1,52 @@
+# Dependencies
+/vendor
+/node_modules
+
+# Environment
+.env
+.env.*
+!.env.example
+!.env.docker
+
+# Storage (datos persistentes, no van en la imagen)
+/storage/app/public/*
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+!/storage/app/public/.gitignore
+!/storage/logs/.gitignore
+!/storage/framework/cache/.gitignore
+!/storage/framework/sessions/.gitignore
+!/storage/framework/views/.gitignore
+
+# Build artifacts
+/public/build
+/public/hot
+
+# Git
+/.git
+/.github
+
+# Development
+/.vscode
+/.idea
+/docker-compose.override.yml
+
+# Tests
+/tests
+/phpunit.xml
+
+# Documentation
+*.md
+!README.md
+
+# Misc
+*.log
+*.sql
+*.sqlite
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db

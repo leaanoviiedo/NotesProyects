@@ -1,11 +1,95 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# NotesProyects
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplicación Laravel con WebSockets en tiempo real (Laravel Reverb), procesamiento de colas y tareas programadas.
+
+**Stack:** PHP 8.3 · Laravel 13 · Livewire 4 · MySQL 8 · Redis 7 · Reverb · Tailwind CSS v4
+
+---
+
+## Despliegue con Docker
+
+### Requisitos
+- Docker >= 24
+- Docker Compose >= 2.20
+
+### Inicio rápido
+
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/tu-usuario/notesproyects.git
+cd notesproyects
+
+# 2. Configurar entorno
+cp .env.docker .env
+# Editar .env con tus valores (contraseñas, claves Reverb, etc.)
+
+# 3. Levantar todos los servicios
+docker compose up -d --build
+
+# 4. Ver logs en tiempo real
+docker compose logs -f app
+```
+
+La aplicación estará disponible en:
+- **Web:** http://localhost
+- **WebSocket (Reverb):** ws://localhost:8080
+
+### Servicios incluidos
+
+| Servicio | Descripción |
+|----------|-------------|
+| `app` | PHP-FPM + Nginx + Queue Worker + Reverb + Scheduler |
+| `db` | MySQL 8.0 |
+| `redis` | Redis 7 (cache, sesiones) |
+
+### Variables de entorno importantes
+
+| Variable | Descripción |
+|----------|-------------|
+| `APP_KEY` | Se genera automáticamente si está vacío |
+| `REVERB_APP_KEY` | Clave pública de Reverb |
+| `REVERB_APP_SECRET` | Secreto de Reverb |
+| `DB_PASSWORD` | Contraseña de MySQL |
+
+### Comandos útiles
+
+```bash
+# Ejecutar migraciones manualmente
+docker compose exec app php artisan migrate
+
+# Abrir tinker
+docker compose exec app php artisan tinker
+
+# Ver logs de Reverb
+docker compose exec app tail -f storage/logs/reverb-out.log
+
+# Ver logs de colas
+docker compose exec app tail -f storage/logs/queue-out.log
+
+# Reiniciar un servicio interno (supervisor)
+docker compose exec app supervisorctl restart reverb
+docker compose exec app supervisorctl status
+```
+
+### CI/CD con GitHub Actions
+
+El pipeline en `.github/workflows/deploy.yml`:
+1. **Test** — Ejecuta la suite de tests en cada PR/push
+2. **Build** — Construye y publica la imagen en `ghcr.io` (solo en `main`)
+3. **Deploy** — Despliega en el servidor via SSH (solo en `main`)
+
+#### Secrets necesarios en GitHub
+
+| Secret | Descripción |
+|--------|-------------|
+| `DEPLOY_HOST` | IP o dominio del servidor |
+| `DEPLOY_USER` | Usuario SSH |
+| `DEPLOY_SSH_KEY` | Clave privada SSH |
+| `DEPLOY_PATH` | Ruta del proyecto en el servidor |
+
+---
+
+## Desarrollo local (sin Docker)
 
 ## About Laravel
 
