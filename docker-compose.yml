@@ -6,7 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: notesproyects:latest
+    pull_policy: build
     restart: unless-stopped
     ports:
       - "${APP_PORT:-8003}:80"
