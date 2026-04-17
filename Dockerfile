@@ -74,6 +74,10 @@ RUN composer install \
 # Copy full application
 COPY . .
 
+# Crear .env base desde .env.example para que siempre exista en la imagen
+# Los valores reales los inyecta el entrypoint desde las env vars del contenedor
+RUN cp .env.example .env
+
 # Copy built frontend assets from node-builder stage
 COPY --from=node-builder /app/public/build ./public/build
 
