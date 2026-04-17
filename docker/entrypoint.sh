@@ -142,9 +142,10 @@ fi
 # ---------------------------------------------------------------------------
 echo "[init] Cacheando configuracion..."
 php artisan config:cache || true
-php artisan route:cache  || true
 php artisan view:cache   || true
 php artisan event:cache  || true
+# NOTA: route:cache se omite intencionalmente — Livewire v4 usa rutas dinamicas
+# que no se recuperan bien del cache en todas las configuraciones.
 
 echo "[init] Iniciando supervisord..."
 echo "============================================"

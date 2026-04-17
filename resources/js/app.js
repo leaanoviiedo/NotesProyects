@@ -26,13 +26,19 @@ document.addEventListener('snippet-rendered', () => {
     });
 });
 
+// Lee la config de Reverb desde los meta tags inyectados por Laravel en runtime
+// Esto permite que la clave sea generada dinamicamente sin recompilar el JS
+const reverbKey    = document.querySelector('meta[name="reverb-key"]')?.content;
+const reverbPort   = parseInt(document.querySelector('meta[name="reverb-port"]')?.content ?? '8081');
+const reverbScheme = document.querySelector('meta[name="reverb-scheme"]')?.content ?? 'http';
+
 window.Echo = new Echo({
     broadcaster: 'reverb',
-    key: import.meta.env.VITE_REVERB_APP_KEY,
-    wsHost: import.meta.env.VITE_REVERB_HOST ?? 'localhost',
-    wsPort: import.meta.env.VITE_REVERB_PORT ?? 8080,
-    wssPort: import.meta.env.VITE_REVERB_PORT ?? 8080,
-    forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'http') === 'https',
+    key: reverbKey,
+    wsHost: window.location.hostname,   // Docker DNS: siempre usa el host del navegador
+    wsPort: reverbPort,
+    wssPort: reverbPort,
+    forceTLS: reverbScheme === 'https',
     enabledTransports: ['ws'],
 });
 
