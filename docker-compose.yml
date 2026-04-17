@@ -10,8 +10,6 @@ services:
     ports:
       - "8003:80"
       - "8081:8080"
-    env_file:
-      - .env
     environment:
       # Solo las variables de red necesarias para conectar contenedores
       # Todo lo demas se lee desde el .env
@@ -43,8 +41,6 @@ services:
   db:
     image: mysql:8.0
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       MYSQL_DATABASE: ${DB_DATABASE:-notesproyects}
       MYSQL_USER: ${DB_USERNAME:-laravel}
