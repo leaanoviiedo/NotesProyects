@@ -16,7 +16,19 @@ chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
 # ---------------------------------------------------------------------------
-# 2. Generar APP_KEY si no está definida
+# 2. Generar .env desde variables de entorno si no existe
+#    Laravel lo necesita para que key:generate pueda escribir en él
+# ---------------------------------------------------------------------------
+if [ ! -f /var/www/.env ]; then
+    echo "[init] Creando .env desde variables de entorno..."
+    printenv | grep -E "^(APP_|DB_|REDIS_|QUEUE_|CACHE_|SESSION_|BROADCAST_|REVERB_|MAIL_|LOG_|FILESYSTEM_|VITE_|GOOGLE_|AWS_)" \
+        | sed 's/=\(.*\)/="\1"/' > /var/www/.env
+    # Asegurar que APP_KEY esté sin comillas para que key:generate funcione
+    sed -i 's/^APP_KEY="\(.*\)"/APP_KEY=\1/' /var/www/.env
+fi
+
+# ---------------------------------------------------------------------------
+# 3. Generar APP_KEY si no está definida
 # ---------------------------------------------------------------------------
 if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:" ]; then
     echo "[init] Generando APP_KEY..."
@@ -24,7 +36,7 @@ if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:" ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 3. Esperar a que MySQL esté listo (check TCP con nc)
+# 4. Esperar a que MySQL esté listo (check TCP con nc)
 # ---------------------------------------------------------------------------
 DB_HOST="${DB_HOST:-db}"
 DB_PORT="${DB_PORT:-3306}"
@@ -39,13 +51,13 @@ for i in $(seq 1 30); do
 done
 
 # ---------------------------------------------------------------------------
-# 4. Ejecutar migraciones
+# 5. Ejecutar migraciones
 # ---------------------------------------------------------------------------
 echo "[init] Ejecutando migraciones..."
 php artisan migrate --force --no-interaction || echo "[warn] Migraciones fallaron, continuando..."
 
 # ---------------------------------------------------------------------------
-# 5. Crear enlace simbólico de storage (idempotente)
+# 6. Crear enlace simbólico de storage (idempotente)
 # ---------------------------------------------------------------------------
 if [ ! -L /var/www/public/storage ]; then
     echo "[init] Creando storage:link..."
@@ -53,7 +65,7 @@ if [ ! -L /var/www/public/storage ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 6. Cachear configuración, rutas y vistas para producción
+# 7. Cachear configuración, rutas y vistas para producción
 # ---------------------------------------------------------------------------
 if [ "$APP_ENV" = "production" ]; then
     echo "[init] Cacheando configuración..."
