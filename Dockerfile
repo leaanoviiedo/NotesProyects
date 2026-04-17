@@ -31,6 +31,7 @@ RUN apk add --no-cache \
     git \
     zip \
     unzip \
+    netcat-openbsd \
     mysql-client \
     && rm -rf /var/cache/apk/*
 
