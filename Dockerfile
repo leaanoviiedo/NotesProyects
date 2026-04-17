@@ -22,25 +22,29 @@ FROM php:8.3-fpm-alpine AS app
 LABEL maintainer="NotesProjects"
 LABEL description="Laravel app with Reverb WebSocket, Queue Worker and Scheduler"
 
-# Install system dependencies
+# Install system dependencies + headers needed to compile PHP extensions
 RUN apk add --no-cache \
     nginx \
     supervisor \
     curl \
     bash \
     git \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
-    libzip-dev \
-    zip \
-    unzip \
-    mysql-client \
-    sqlite \
+    # GD dependencies
+    libpng libpng-dev \
+    libjpeg-turbo libjpeg-turbo-dev \
+    freetype freetype-dev \
+    # Zip
+    libzip libzip-dev \
+    zip unzip \
+    # Oniguruma (mbstring)
     oniguruma-dev \
+    # MySQL client
+    mysql-client \
+    # SQLite
+    sqlite sqlite-dev \
     && rm -rf /var/cache/apk/*
 
-# Install PHP extensions
+# Install PHP extensions (build-time deps included above)
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
         pdo \
@@ -54,7 +58,7 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
         sockets \
         mbstring
 
-# Install Redis PHP extension
+# Install Redis PHP extension via PECL
 RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
     && pecl install redis \
     && docker-php-ext-enable redis \
