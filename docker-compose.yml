@@ -18,6 +18,7 @@ services:
       DB_DATABASE: ${DB_DATABASE:-notesproyects}
       DB_USERNAME: ${DB_USERNAME:-laravel}
       DB_PASSWORD: ${DB_PASSWORD:-np_db_secret_2026}
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-np_root_secret_2026}
       # Cache y Sesiones
       REDIS_HOST: redis
       REDIS_PORT: "6379"
@@ -52,13 +53,13 @@ services:
       MYSQL_DATABASE: ${DB_DATABASE:-notesproyects}
       MYSQL_USER: ${DB_USERNAME:-laravel}
       MYSQL_PASSWORD: ${DB_PASSWORD:-np_db_secret_2026}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-np_root_secret_2026}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-np_root_secret_2026}
     volumes:
       - db_data:/var/lib/mysql
     networks:
       - app_network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-np_root_secret_2026}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-np_root_secret_2026}"]
       interval: 10s
       timeout: 5s
       retries: 10

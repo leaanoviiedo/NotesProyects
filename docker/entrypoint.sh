@@ -86,7 +86,7 @@ done
 #    env vars MYSQL_USER/MYSQL_PASSWORD y el usuario puede no existir o tener
 #    credenciales distintas. Conectamos como root y lo reparamos.
 # ---------------------------------------------------------------------------
-MYSQL_ROOT_PASS="${DB_PASSWORD:-np_root_secret_2026}"
+MYSQL_ROOT_PASS="${DB_ROOT_PASSWORD:-np_root_secret_2026}"
 DB_NAME="${DB_DATABASE:-notesproyects}"
 DB_USER="${DB_USERNAME:-laravel}"
 DB_PASS="${DB_PASSWORD:-np_db_secret_2026}"
