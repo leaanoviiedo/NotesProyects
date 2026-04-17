@@ -22,32 +22,24 @@ FROM php:8.4-fpm-alpine AS app
 LABEL maintainer="NotesProjects"
 LABEL description="Laravel app with Reverb WebSocket, Queue Worker and Scheduler"
 
-# Install system dependencies + headers needed to compile PHP extensions
+# Install system dependencies (no -dev headers: los maneja install-php-extensions)
 RUN apk add --no-cache \
     nginx \
     supervisor \
     curl \
     bash \
     git \
-    # GD dependencies
-    libpng libpng-dev \
-    libjpeg-turbo libjpeg-turbo-dev \
-    freetype freetype-dev \
-    # Zip
-    libzip libzip-dev \
-    zip unzip \
-    # Oniguruma (mbstring)
-    oniguruma-dev \
-    # MySQL client
+    zip \
+    unzip \
     mysql-client \
-    # SQLite
-    sqlite sqlite-dev \
     && rm -rf /var/cache/apk/*
 
-# Install PHP extensions (build-time deps included above)
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) \
-        pdo \
+# install-php-extensions resuelve automáticamente headers y rutas en cualquier Alpine/ARM
+RUN curl -sSLf \
+    https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions \
+    -o /usr/local/bin/install-php-extensions \
+    && chmod +x /usr/local/bin/install-php-extensions \
+    && install-php-extensions \
         pdo_mysql \
         pdo_sqlite \
         gd \
@@ -56,14 +48,8 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
         opcache \
         pcntl \
         sockets \
-        mbstring
-
-# Install Redis PHP extension via PECL
-RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
-    && pecl install redis \
-    && docker-php-ext-enable redis \
-    && apk del .build-deps \
-    && rm -rf /var/cache/apk/*
+        mbstring \
+        redis
 
 # Configure PHP
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/app.ini
