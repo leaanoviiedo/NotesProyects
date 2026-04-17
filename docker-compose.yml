@@ -13,10 +13,14 @@ services:
     environment:
       # Solo las variables de red necesarias para conectar contenedores
       # Todo lo demas se lee desde el .env
+      DB_CONNECTION: mysql
       DB_HOST: db
       DB_PORT: "3306"
       REDIS_HOST: redis
       REDIS_PORT: "6379"
+      SESSION_DRIVER: redis
+      CACHE_STORE: redis
+      QUEUE_CONNECTION: database
     volumes:
       - storage_uploads:/var/www/storage/app/public
       - storage_logs:/var/www/storage/logs

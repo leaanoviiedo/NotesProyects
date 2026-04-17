@@ -47,11 +47,15 @@ if [ ! -f "/var/www/.env" ]; then
 fi
 
 # Inyectar las vars importantes en .env desde las variables del OS (inyectadas por docker-compose)
+sed -i "s/^DB_CONNECTION=.*/DB_CONNECTION=${DB_CONNECTION:-mysql}/" /var/www/.env
 sed -i "s/^DB_HOST=.*/DB_HOST=${DB_HOST:-db}/" /var/www/.env
 sed -i "s/^DB_PORT=.*/DB_PORT=${DB_PORT:-3306}/" /var/www/.env
 sed -i "s/^REDIS_HOST=.*/REDIS_HOST=${REDIS_HOST:-redis}/" /var/www/.env
 sed -i "s/^REDIS_PORT=.*/REDIS_PORT=${REDIS_PORT:-6379}/" /var/www/.env
 sed -i "s/^APP_KEY=.*/APP_KEY=${APP_KEY}/" /var/www/.env
+sed -i "s/^SESSION_DRIVER=.*/SESSION_DRIVER=${SESSION_DRIVER:-redis}/" /var/www/.env
+sed -i "s/^CACHE_STORE=.*/CACHE_STORE=${CACHE_STORE:-redis}/" /var/www/.env
+sed -i "s/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=${QUEUE_CONNECTION:-database}/" /var/www/.env
 
 echo "[init] Entorno configurado correctamente."
 
