@@ -28,7 +28,6 @@ RUN apk add --no-cache \
     supervisor \
     curl \
     bash \
-    git \
     zip \
     unzip \
     netcat-openbsd \

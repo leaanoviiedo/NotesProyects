@@ -38,70 +38,22 @@ fi
 source "$SECRETS_FILE"
 
 # ---------------------------------------------------------------------------
-# 3. Escribir .env completo
-#    DB_HOST / REDIS_HOST vienen como env vars del contenedor (docker-compose)
+# 3. Preparar entorno global si es necesario
+#    Laravel lee las variables de entorno inyectadas por Docker.
 # ---------------------------------------------------------------------------
-cat > /var/www/.env <<EOF
-APP_NAME="NotesProyects"
-APP_ENV=production
-APP_KEY=${APP_KEY}
-APP_DEBUG=false
-APP_URL=${APP_URL:-http://localhost:8003}
-APP_LOCALE=en
-APP_FALLBACK_LOCALE=en
+if [ ! -f "/var/www/.env" ]; then
+    echo "[init] .env no existe, copiando desde .env.example..."
+    cp /var/www/.env.example /var/www/.env
+fi
 
-LOG_CHANNEL=stack
-LOG_STACK=single
-LOG_LEVEL=error
+# Inyectar las vars importantes en .env desde las variables del OS (inyectadas por docker-compose)
+sed -i "s/^DB_HOST=.*/DB_HOST=${DB_HOST:-db}/" /var/www/.env
+sed -i "s/^DB_PORT=.*/DB_PORT=${DB_PORT:-3306}/" /var/www/.env
+sed -i "s/^REDIS_HOST=.*/REDIS_HOST=${REDIS_HOST:-redis}/" /var/www/.env
+sed -i "s/^REDIS_PORT=.*/REDIS_PORT=${REDIS_PORT:-6379}/" /var/www/.env
+sed -i "s/^APP_KEY=.*/APP_KEY=${APP_KEY}/" /var/www/.env
 
-DB_CONNECTION=mysql
-DB_HOST=${DB_HOST:-db}
-DB_PORT=${DB_PORT:-3306}
-DB_DATABASE=notesproyects
-DB_USERNAME=laravel
-DB_PASSWORD=np_db_secret_2026
-
-SESSION_DRIVER=redis
-SESSION_LIFETIME=120
-SESSION_ENCRYPT=false
-SESSION_PATH=/
-SESSION_DOMAIN=null
-
-BROADCAST_CONNECTION=reverb
-FILESYSTEM_DISK=local
-QUEUE_CONNECTION=database
-CACHE_STORE=redis
-
-REDIS_CLIENT=phpredis
-REDIS_HOST=${REDIS_HOST:-redis}
-REDIS_PASSWORD=null
-REDIS_PORT=${REDIS_PORT:-6379}
-
-MAIL_MAILER=log
-MAIL_HOST=127.0.0.1
-MAIL_PORT=2525
-MAIL_USERNAME=null
-MAIL_PASSWORD=null
-MAIL_FROM_ADDRESS="noreply@notesproyects.local"
-MAIL_FROM_NAME="NotesProyects"
-
-REVERB_APP_ID=notesproyects
-REVERB_APP_KEY=${REVERB_APP_KEY}
-REVERB_APP_SECRET=${REVERB_APP_SECRET}
-REVERB_HOST=${REVERB_HOST:-localhost}
-REVERB_PORT=8081
-REVERB_SCHEME=http
-REVERB_SERVER_HOST=0.0.0.0
-REVERB_SERVER_PORT=8080
-
-VITE_APP_NAME="NotesProyects"
-VITE_REVERB_APP_KEY=${REVERB_APP_KEY}
-VITE_REVERB_HOST=${REVERB_HOST:-localhost}
-VITE_REVERB_PORT=8081
-VITE_REVERB_SCHEME=http
-EOF
-
-echo "[init] .env generado correctamente."
+echo "[init] Entorno configurado correctamente."
 
 # ---------------------------------------------------------------------------
 # 4. Permisos
@@ -130,10 +82,10 @@ done
 #    env vars MYSQL_USER/MYSQL_PASSWORD y el usuario puede no existir o tener
 #    credenciales distintas. Conectamos como root y lo reparamos.
 # ---------------------------------------------------------------------------
-MYSQL_ROOT_PASS="np_root_secret_2026"
-DB_NAME="notesproyects"
-DB_USER="laravel"
-DB_PASS="np_db_secret_2026"
+MYSQL_ROOT_PASS="${DB_PASSWORD:-np_root_secret_2026}"
+DB_NAME="${DB_DATABASE:-notesproyects}"
+DB_USER="${DB_USERNAME:-laravel}"
+DB_PASS="${DB_PASSWORD:-np_db_secret_2026}"
 
 echo "[init] Verificando usuario MySQL '$DB_USER'..."
 mysql -h "$DB_HOST_VAL" -P "$DB_PORT_VAL" -u root -p"${MYSQL_ROOT_PASS}" \

@@ -6,14 +6,15 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    pull_policy: build
     restart: unless-stopped
     ports:
       - "8003:80"
       - "8081:8080"
+    env_file:
+      - .env
     environment:
       # Solo las variables de red necesarias para conectar contenedores
-      # Todo lo demas se genera automaticamente en el entrypoint
+      # Todo lo demas se lee desde el .env
       DB_HOST: db
       DB_PORT: "3306"
       REDIS_HOST: redis
@@ -42,17 +43,19 @@ services:
   db:
     image: mysql:8.0
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
-      MYSQL_DATABASE: notesproyects
-      MYSQL_USER: laravel
-      MYSQL_PASSWORD: np_db_secret_2026
-      MYSQL_ROOT_PASSWORD: np_root_secret_2026
+      MYSQL_DATABASE: ${DB_DATABASE:-notesproyects}
+      MYSQL_USER: ${DB_USERNAME:-laravel}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-np_db_secret_2026}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-np_root_secret_2026}
     volumes:
       - db_data:/var/lib/mysql
     networks:
       - app_network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pnp_root_secret_2026"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-np_root_secret_2026}"]
       interval: 10s
       timeout: 5s
       retries: 10
