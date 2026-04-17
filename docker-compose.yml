@@ -3,10 +3,11 @@ services:
   # Laravel Application (PHP-FPM + Nginx + Queue + Reverb + Scheduler)
   # ---------------------------------------------------------------------------
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: notesproyects:latest
+    # La imagen se construye en GitHub Actions y se publica en ghcr.io
+    # Establece REGISTRY_IMAGE en Portainer con el valor de tu repo, ej:
+    # ghcr.io/tu-usuario/notesproyects:latest
+    image: ${REGISTRY_IMAGE:-ghcr.io/change-me/notesproyects:latest}
+    platform: linux/arm64
     restart: unless-stopped
     ports:
       - "${APP_PORT:-8003}:80"
