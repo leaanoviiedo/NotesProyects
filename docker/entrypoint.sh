@@ -12,64 +12,96 @@ cd /var/www
 mkdir -p /var/www/storage/logs
 mkdir -p /var/www/storage/framework/{cache,sessions,views}
 mkdir -p /var/www/bootstrap/cache
+mkdir -p /var/secrets
 
 # ---------------------------------------------------------------------------
-# 2. Actualizar .env con las variables de entorno del contenedor
-#    Usa | como delimitador para evitar conflictos con / en los valores
+# 2. Cargar o generar secretos persistentes
+#    Se guardan en /var/secrets (volumen Docker) para sobrevivir reinicios
 # ---------------------------------------------------------------------------
-update_env() {
-    local key="$1"
-    local value="$2"
-    if [ -n "$value" ]; then
-        if grep -q "^${key}=" /var/www/.env 2>/dev/null; then
-            sed -i "s|^${key}=.*|${key}=${value}|" /var/www/.env
-        else
-            echo "${key}=${value}" >> /var/www/.env
-        fi
-    fi
-}
+SECRETS_FILE="/var/secrets/app.env"
 
-update_env "APP_KEY"            "$APP_KEY"
-update_env "APP_ENV"            "$APP_ENV"
-update_env "APP_URL"            "$APP_URL"
-update_env "APP_DEBUG"          "$APP_DEBUG"
-update_env "DB_CONNECTION"      "$DB_CONNECTION"
-update_env "DB_HOST"            "$DB_HOST"
-update_env "DB_PORT"            "$DB_PORT"
-update_env "DB_DATABASE"        "$DB_DATABASE"
-update_env "DB_USERNAME"        "$DB_USERNAME"
-update_env "DB_PASSWORD"        "$DB_PASSWORD"
-update_env "REDIS_HOST"         "$REDIS_HOST"
-update_env "REDIS_PORT"         "$REDIS_PORT"
-update_env "REDIS_PASSWORD"     "$REDIS_PASSWORD"
-update_env "QUEUE_CONNECTION"   "$QUEUE_CONNECTION"
-update_env "CACHE_STORE"        "$CACHE_STORE"
-update_env "SESSION_DRIVER"     "$SESSION_DRIVER"
-update_env "BROADCAST_CONNECTION" "$BROADCAST_CONNECTION"
-update_env "REVERB_APP_ID"      "$REVERB_APP_ID"
-update_env "REVERB_APP_KEY"     "$REVERB_APP_KEY"
-update_env "REVERB_APP_SECRET"  "$REVERB_APP_SECRET"
-update_env "REVERB_HOST"        "$REVERB_HOST"
-update_env "REVERB_PORT"        "$REVERB_PORT"
-update_env "REVERB_SCHEME"      "$REVERB_SCHEME"
-update_env "MAIL_MAILER"        "$MAIL_MAILER"
-update_env "MAIL_HOST"          "$MAIL_HOST"
-update_env "MAIL_PORT"          "$MAIL_PORT"
-update_env "MAIL_USERNAME"      "$MAIL_USERNAME"
-update_env "MAIL_PASSWORD"      "$MAIL_PASSWORD"
-update_env "MAIL_FROM_ADDRESS"  "$MAIL_FROM_ADDRESS"
-update_env "GOOGLE_CLIENT_ID"   "$GOOGLE_CLIENT_ID"
-update_env "GOOGLE_CLIENT_SECRET" "$GOOGLE_CLIENT_SECRET"
-update_env "GOOGLE_REDIRECT_URI"  "$GOOGLE_REDIRECT_URI"
-
-# ---------------------------------------------------------------------------
-# 3. Generar APP_KEY si sigue vacía
-# ---------------------------------------------------------------------------
-CURRENT_KEY=$(grep "^APP_KEY=" /var/www/.env | cut -d'=' -f2)
-if [ -z "$CURRENT_KEY" ] || [ "$CURRENT_KEY" = "base64:" ]; then
-    echo "[init] Generando APP_KEY..."
-    php artisan key:generate --force
+if [ ! -f "$SECRETS_FILE" ]; then
+    echo "[init] Primer arranque: generando secretos..."
+    APP_KEY_GEN=$(php -r "echo 'base64:'.base64_encode(random_bytes(32));")
+    REVERB_KEY_GEN=$(php -r "echo bin2hex(random_bytes(20));")
+    REVERB_SECRET_GEN=$(php -r "echo bin2hex(random_bytes(32));")
+    cat > "$SECRETS_FILE" <<SECRETS
+APP_KEY=${APP_KEY_GEN}
+REVERB_APP_KEY=${REVERB_KEY_GEN}
+REVERB_APP_SECRET=${REVERB_SECRET_GEN}
+SECRETS
+    echo "[init] Secretos generados y guardados."
 fi
+
+# Cargar secretos persistidos
+# shellcheck disable=SC1090
+source "$SECRETS_FILE"
+
+# ---------------------------------------------------------------------------
+# 3. Escribir .env completo
+#    DB_HOST / REDIS_HOST vienen como env vars del contenedor (docker-compose)
+# ---------------------------------------------------------------------------
+cat > /var/www/.env <<EOF
+APP_NAME="NotesProyects"
+APP_ENV=production
+APP_KEY=${APP_KEY}
+APP_DEBUG=false
+APP_URL=${APP_URL:-http://localhost:8003}
+APP_LOCALE=en
+APP_FALLBACK_LOCALE=en
+
+LOG_CHANNEL=stack
+LOG_STACK=single
+LOG_LEVEL=error
+
+DB_CONNECTION=mysql
+DB_HOST=${DB_HOST:-db}
+DB_PORT=${DB_PORT:-3306}
+DB_DATABASE=notesproyects
+DB_USERNAME=laravel
+DB_PASSWORD=np_db_secret_2026
+
+SESSION_DRIVER=redis
+SESSION_LIFETIME=120
+SESSION_ENCRYPT=false
+SESSION_PATH=/
+SESSION_DOMAIN=null
+
+BROADCAST_CONNECTION=reverb
+FILESYSTEM_DISK=local
+QUEUE_CONNECTION=database
+CACHE_STORE=redis
+
+REDIS_CLIENT=phpredis
+REDIS_HOST=${REDIS_HOST:-redis}
+REDIS_PASSWORD=null
+REDIS_PORT=${REDIS_PORT:-6379}
+
+MAIL_MAILER=log
+MAIL_HOST=127.0.0.1
+MAIL_PORT=2525
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_FROM_ADDRESS="noreply@notesproyects.local"
+MAIL_FROM_NAME="NotesProyects"
+
+REVERB_APP_ID=notesproyects
+REVERB_APP_KEY=${REVERB_APP_KEY}
+REVERB_APP_SECRET=${REVERB_APP_SECRET}
+REVERB_HOST=${REVERB_HOST:-localhost}
+REVERB_PORT=8081
+REVERB_SCHEME=http
+REVERB_SERVER_HOST=0.0.0.0
+REVERB_SERVER_PORT=8080
+
+VITE_APP_NAME="NotesProyects"
+VITE_REVERB_APP_KEY=${REVERB_APP_KEY}
+VITE_REVERB_HOST=${REVERB_HOST:-localhost}
+VITE_REVERB_PORT=8081
+VITE_REVERB_SCHEME=http
+EOF
+
+echo "[init] .env generado correctamente."
 
 # ---------------------------------------------------------------------------
 # 4. Permisos
@@ -106,15 +138,13 @@ if [ ! -L /var/www/public/storage ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 8. Cachear para producción
+# 8. Cachear configuracion de produccion
 # ---------------------------------------------------------------------------
-if [ "$APP_ENV" = "production" ]; then
-    echo "[init] Cacheando configuración..."
-    php artisan config:cache  || true
-    php artisan route:cache   || true
-    php artisan view:cache    || true
-    php artisan event:cache   || true
-fi
+echo "[init] Cacheando configuracion..."
+php artisan config:cache || true
+php artisan route:cache  || true
+php artisan view:cache   || true
+php artisan event:cache  || true
 
 echo "[init] Iniciando supervisord..."
 echo "============================================"
