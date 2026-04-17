@@ -125,20 +125,47 @@ for i in $(seq 1 30); do
 done
 
 # ---------------------------------------------------------------------------
-# 6. Migraciones
+# 6. Garantizar usuario MySQL (resiste volumenes obsoletos)
+#    Si el volumen db_data viene de un despliegue anterior, MySQL ignora los
+#    env vars MYSQL_USER/MYSQL_PASSWORD y el usuario puede no existir o tener
+#    credenciales distintas. Conectamos como root y lo reparamos.
+# ---------------------------------------------------------------------------
+MYSQL_ROOT_PASS="np_root_secret_2026"
+DB_NAME="notesproyects"
+DB_USER="laravel"
+DB_PASS="np_db_secret_2026"
+
+echo "[init] Verificando usuario MySQL '$DB_USER'..."
+mysql -h "$DB_HOST_VAL" -P "$DB_PORT_VAL" -u root -p"${MYSQL_ROOT_PASS}" \
+    --connect-timeout=10 --silent 2>/dev/null <<SQL
+CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}';
+ALTER USER '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}';
+GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '${DB_USER}'@'%';
+FLUSH PRIVILEGES;
+SQL
+
+if [ $? -eq 0 ]; then
+    echo "[init] Usuario MySQL OK."
+else
+    echo "[warn] No se pudo reparar el usuario MySQL (continuando de todos modos)."
+fi
+
+# ---------------------------------------------------------------------------
+# 7. Migraciones
 # ---------------------------------------------------------------------------
 echo "[init] Ejecutando migraciones..."
 php artisan migrate --force --no-interaction || echo "[warn] Migraciones fallaron"
 
 # ---------------------------------------------------------------------------
-# 7. Storage link
+# 8. Storage link
 # ---------------------------------------------------------------------------
 if [ ! -L /var/www/public/storage ]; then
     php artisan storage:link --force || true
 fi
 
 # ---------------------------------------------------------------------------
-# 8. Cachear configuracion de produccion
+# 9. Cachear configuracion de produccion
 # ---------------------------------------------------------------------------
 echo "[init] Cacheando configuracion..."
 php artisan config:cache || true
