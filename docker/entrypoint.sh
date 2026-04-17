@@ -52,7 +52,7 @@ sed -i "s/^DB_HOST=.*/DB_HOST=${DB_HOST:-db}/" /var/www/.env
 sed -i "s/^DB_PORT=.*/DB_PORT=${DB_PORT:-3306}/" /var/www/.env
 sed -i "s/^REDIS_HOST=.*/REDIS_HOST=${REDIS_HOST:-redis}/" /var/www/.env
 sed -i "s/^REDIS_PORT=.*/REDIS_PORT=${REDIS_PORT:-6379}/" /var/www/.env
-sed -i "s/^APP_KEY=.*/APP_KEY=${APP_KEY}/" /var/www/.env
+sed -i "s|^APP_KEY=.*|APP_KEY=${APP_KEY}|" /var/www/.env
 sed -i "s/^SESSION_DRIVER=.*/SESSION_DRIVER=${SESSION_DRIVER:-redis}/" /var/www/.env
 sed -i "s/^CACHE_STORE=.*/CACHE_STORE=${CACHE_STORE:-redis}/" /var/www/.env
 sed -i "s/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=${QUEUE_CONNECTION:-database}/" /var/www/.env
@@ -91,21 +91,29 @@ DB_NAME="${DB_DATABASE:-notesproyects}"
 DB_USER="${DB_USERNAME:-laravel}"
 DB_PASS="${DB_PASSWORD:-np_db_secret_2026}"
 
-echo "[init] Verificando usuario MySQL '$DB_USER'..."
-mysql -h "$DB_HOST_VAL" -P "$DB_PORT_VAL" -u root -p"${MYSQL_ROOT_PASS}" \
-    --connect-timeout=10 --silent 2>/dev/null <<SQL
-CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}';
-ALTER USER '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}';
-GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '${DB_USER}'@'%';
-FLUSH PRIVILEGES;
-SQL
+echo "[init] Verificando y configurando base de datos y usuario MySQL..."
+export DB_HOST_VAL DB_PORT_VAL MYSQL_ROOT_PASS DB_NAME DB_USER DB_PASS
 
-if [ $? -eq 0 ]; then
-    echo "[init] Usuario MySQL OK."
-else
-    echo "[warn] No se pudo reparar el usuario MySQL (continuando de todos modos)."
-fi
+cat > /tmp/db_init.php <<'EOF'
+<?php
+try {
+    $pdo = new PDO('mysql:host=' . getenv('DB_HOST_VAL') . ';port=' . getenv('DB_PORT_VAL'), 'root', getenv('MYSQL_ROOT_PASS'));
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $dbName = getenv('DB_NAME');
+    $dbUser = getenv('DB_USER');
+    $dbPass = getenv('DB_PASS');
+
+    $pdo->exec("CREATE DATABASE IF NOT EXISTS `$dbName` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;");
+    $pdo->exec("CREATE USER IF NOT EXISTS '$dbUser'@'%' IDENTIFIED BY '$dbPass';");
+    $pdo->exec("ALTER USER '$dbUser'@'%' IDENTIFIED BY '$dbPass';");
+    $pdo->exec("GRANT ALL PRIVILEGES ON `$dbName`.* TO '$dbUser'@'%';");
+    $pdo->exec("FLUSH PRIVILEGES;");
+    echo "[init] Base de datos y usuario OK.\n";
+} catch (PDOException $e) {
+    echo "[warn] Falló la configuración de MySQL: " . $e->getMessage() . "\n";
+}
+EOF
+php /tmp/db_init.php
 
 # ---------------------------------------------------------------------------
 # 7. Migraciones
