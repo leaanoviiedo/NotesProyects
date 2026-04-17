@@ -6,6 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    pull_policy: build
     restart: unless-stopped
     ports:
       - "8003:80"
