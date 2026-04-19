@@ -43,6 +43,15 @@ if (reverbKey) {
         forceTLS: reverbScheme === 'https',
         enabledTransports: ['ws'],
     });
+} else {
+    // Definimos un objeto Echo vacio para evitar errores de Livewire
+    window.Echo = { 
+        private: () => ({ listen: () => ({}) }),
+        channel: () => ({ listen: () => ({}) }),
+        leave: () => ({}),
+        connector: { options: {} }
+    };
+    console.warn('Reverb key not found. Real-time updates disabled.');
 }
 
 // TipTap Alpine component — rich text editor for Notes
