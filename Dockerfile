@@ -21,7 +21,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Configure and install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip intl opcache
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip intl opcache sockets
 
 # Enable Apache Mod Rewrite
 RUN a2enmod rewrite
@@ -35,12 +35,12 @@ WORKDIR /var/www/html
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy application files (ignoring files in .dockerignore)
-COPY . /var/www/html/
-
-# Install composer dependencies
-# Using --no-scripts to prevent execution of post-install scripts during build phase
+# Copy composer files and install dependencies
+COPY composer.json composer.lock ./
 RUN composer install --no-interaction --optimize-autoloader --no-dev --no-scripts
+
+# Copy application files
+COPY . /var/www/html/
 
 # Build frontend assets (Vite)
 RUN npm install && npm run build
