@@ -6,7 +6,6 @@
 /.github
 /.vscode
 /tests
-/docker
 /docker-compose.yml
 /.dockerignore
 /*.md
