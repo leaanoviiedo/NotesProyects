@@ -20,10 +20,12 @@ chmod -R 775 storage bootstrap/cache
 # Run migrations (if you want this automatically)
 # Be careful with this in production if you have multiple containers
 if [ "$RUN_MIGRATIONS" = "true" ]; then
-    echo "Waiting for database connection..."
-    # We can use php artisan db:monitor or just wait
-    sleep 10
-    echo "Running migrations..."
+    echo "Waiting for database connection (db:3306)..."
+    until timeout 1s bash -c "echo > /dev/tcp/db/3306" 2>/dev/null; do
+        echo "Database is not ready yet, retrying in 2 seconds..."
+        sleep 2
+    done
+    echo "Database is up! Running migrations..."
     php artisan migrate --force
 fi
 
