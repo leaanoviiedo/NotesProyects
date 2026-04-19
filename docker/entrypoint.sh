@@ -27,10 +27,13 @@ if [ "$RUN_MIGRATIONS" = "true" ]; then
     php artisan migrate --force
 fi
 
-# Clear and cache configurations
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+# Clear caches
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+# php artisan config:cache
+# php artisan route:cache
+# php artisan view:cache
 
 # Execute the main command
 exec "$@"

@@ -32,6 +32,8 @@ const reverbKey    = document.querySelector('meta[name="reverb-key"]')?.content;
 const reverbPort   = parseInt(document.querySelector('meta[name="reverb-port"]')?.content ?? '8081');
 const reverbScheme = document.querySelector('meta[name="reverb-scheme"]')?.content ?? 'http';
 
+console.log('Reverb Config Found:', { reverbKey, reverbPort, reverbScheme });
+
 // Solo inicializar Echo si la clave esta disponible (algunas paginas no tienen meta tags)
 if (reverbKey) {
     window.Echo = new Echo({
