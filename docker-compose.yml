@@ -20,7 +20,7 @@ services:
       - DB_USERNAME=${DB_USERNAME:-root}
       - DB_PASSWORD=${DB_PASSWORD:-secret}
       - RUN_MIGRATIONS=true
-      - REVERB_HOST=0.0.0.0
+      - REVERB_HOST=reverb
       - REVERB_PORT=8081
       - REVERB_SCHEME=http
       - REVERB_APP_ID=${REVERB_APP_ID:-958876}
@@ -37,15 +37,18 @@ services:
       dockerfile: Dockerfile
     container_name: notesproyects-reverb
     restart: unless-stopped
-    command: php artisan reverb:start --host=0.0.0.0 --port=8080
+    command: php artisan reverb:start --host=0.0.0.0 --port=8081
     ports:
-      - "8081:8080"
+      - "8081:8081"
     environment:
       - APP_ENV=production
       - APP_DEBUG=false
       - REVERB_APP_ID=${REVERB_APP_ID:-958876}
       - REVERB_APP_KEY=${REVERB_APP_KEY:-npnjdx8l2r9bajdffqdm}
       - REVERB_APP_SECRET=${REVERB_APP_SECRET:-ksort2s7cgphjtj03dpg}
+      - REVERB_HOST=0.0.0.0
+      - REVERB_PORT=8081
+      - REVERB_SCHEME=http
       - DB_CONNECTION=mysql
       - DB_HOST=db
       - DB_PORT=3306
@@ -70,6 +73,8 @@ services:
       - REVERB_APP_ID=${REVERB_APP_ID:-958876}
       - REVERB_APP_KEY=${REVERB_APP_KEY:-npnjdx8l2r9bajdffqdm}
       - REVERB_APP_SECRET=${REVERB_APP_SECRET:-ksort2s7cgphjtj03dpg}
+      - REVERB_HOST=reverb
+      - REVERB_PORT=8081
       - DB_CONNECTION=mysql
       - DB_HOST=db
       - DB_PORT=3306
