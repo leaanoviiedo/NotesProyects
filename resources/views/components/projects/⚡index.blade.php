@@ -202,6 +202,19 @@ new #[Layout('layouts.app')] class extends Component {
                 @endforeach
             </div>
             @endif
+            
+            {{-- Quick Actions --}}
+            <div class="flex gap-2 mt-2">
+                <a href="{{ route('kanban', ['projectId' => $project->id]) }}" wire:navigate 
+                    class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-primary/5 text-primary text-xs font-semibold hover:bg-primary/10 transition border border-primary/10">
+                    <span class="material-symbols-outlined text-sm">view_kanban</span> Kanban
+                </a>
+                <a href="{{ route('notes', ['projectId' => $project->id]) }}" wire:navigate 
+                    class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-indigo-600/5 text-indigo-600 text-xs font-semibold hover:bg-indigo-600/10 transition border border-indigo-600/10">
+                    <span class="material-symbols-outlined text-sm">description</span> Notas
+                </a>
+            </div>
+
             <div class="flex items-center gap-4 text-xs text-on-surface-variant mt-auto">
                 <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">view_kanban</span>{{ $project->kanban_cards_count }}</span>
                 <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">notes</span>{{ $project->notes_count }}</span>
