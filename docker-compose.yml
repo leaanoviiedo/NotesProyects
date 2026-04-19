@@ -21,7 +21,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD:-secret}
       - RUN_MIGRATIONS=true
       - REVERB_HOST=0.0.0.0
-      - REVERB_PORT=8080
+      - REVERB_PORT=8081
       - REVERB_SCHEME=http
     depends_on:
       - db
@@ -36,7 +36,7 @@ services:
     restart: unless-stopped
     command: php artisan reverb:start --host=0.0.0.0 --port=8080
     ports:
-      - "8080:8080"
+      - "8081:8080"
     environment:
       - APP_ENV=production
       - APP_DEBUG=false
