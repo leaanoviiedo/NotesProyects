@@ -86,7 +86,7 @@ new #[Layout('layouts.app')] class extends Component {
                 </p>
             </div>
             @if($link->is_active)
-            <button onclick="navigator.clipboard.writeText('{{ $link->url }}')"
+            <button onclick="if(navigator.clipboard){navigator.clipboard.writeText('{{ $link->url }}')}else{const el=document.createElement('textarea');el.value='{{ $link->url }}';document.body.appendChild(el);el.select();document.execCommand('copy');document.body.removeChild(el);}"
                 class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-highest" title="Copiar">
                 <span class="material-symbols-outlined text-sm text-on-surface-variant">content_copy</span>
             </button>
