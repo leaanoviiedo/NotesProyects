@@ -1,103 +1,57 @@
-# =============================================================================
-# Stage 1: Build frontend assets
-# =============================================================================
-FROM node:20-alpine AS node-builder
+FROM php:8.3-apache
 
-WORKDIR /app
-
-COPY package.json package-lock.json* ./
-RUN npm ci
-
-COPY resources ./resources
-COPY vite.config.js ./
-COPY public ./public
-
-RUN npm run build
-
-# =============================================================================
-# Stage 2: Production image
-# =============================================================================
-FROM php:8.4-fpm-alpine AS app
-
-LABEL maintainer="NotesProjects"
-LABEL description="Laravel app with Reverb WebSocket, Queue Worker and Scheduler"
-
-# Install system dependencies (no -dev headers: los maneja install-php-extensions)
-RUN apk add --no-cache \
-    nginx \
-    supervisor \
-    curl \
-    bash \
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
     zip \
     unzip \
-    netcat-openbsd \
-    mysql-client \
-    && rm -rf /var/cache/apk/*
+    git \
+    curl \
+    libonig-dev \
+    libxml2-dev \
+    libzip-dev \
+    nodejs \
+    npm
 
-# install-php-extensions resuelve automáticamente headers y rutas en cualquier Alpine/ARM
-RUN curl -sSLf \
-    https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions \
-    -o /usr/local/bin/install-php-extensions \
-    && chmod +x /usr/local/bin/install-php-extensions \
-    && install-php-extensions \
-        pdo_mysql \
-        pdo_sqlite \
-        gd \
-        zip \
-        bcmath \
-        opcache \
-        pcntl \
-        sockets \
-        mbstring \
-        redis
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Configure PHP
-COPY docker/php/php.ini /usr/local/etc/php/conf.d/app.ini
-COPY docker/php/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
+# Configure and install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+
+# Enable Apache Mod Rewrite
+RUN a2enmod rewrite
+
+# Set working directory
+WORKDIR /var/www/html
 
 # Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-WORKDIR /var/www
+# Copy application files (ignoring files in .dockerignore)
+COPY . /var/www/html/
 
-# Copy composer files first (Docker layer caching)
-COPY composer.json composer.lock ./
+# Install composer dependencies
+# Using --no-scripts to prevent execution of post-install scripts during build phase
+RUN composer install --no-interaction --optimize-autoloader --no-dev --no-scripts
 
-RUN composer install \
-    --no-dev \
-    --no-scripts \
-    --no-autoloader \
-    --prefer-dist \
-    --optimize-autoloader
+# Build frontend assets (Vite)
+RUN npm install && npm run build
 
-# Copy full application
-COPY . .
+# Change ownership of our applications
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Crear .env base desde .env.example para que siempre exista en la imagen
-# Los valores reales los inyecta el entrypoint desde las env vars del contenedor
-RUN cp .env.example .env
+# Update the default apache site with the config we created
+COPY docker/apache/vhost.conf /etc/apache2/sites-available/000-default.conf
 
-# Copy built frontend assets from node-builder stage
-COPY --from=node-builder /app/public/build ./public/build
+# Set up entrypoint
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Finalize composer autoloader
-RUN composer dump-autoload --optimize --no-dev
+EXPOSE 80
 
-# Set correct permissions
-RUN chown -R www-data:www-data /var/www \
-    && chmod -R 755 /var/www/storage \
-    && chmod -R 755 /var/www/bootstrap/cache \
-    && mkdir -p /var/www/storage/logs \
-    && chmod -R 775 /var/www/storage/logs
-
-# Copy service configurations
-COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
-COPY docker/supervisord.conf /etc/supervisord.conf
-COPY docker/entrypoint.sh /entrypoint.sh
-
-RUN chmod +x /entrypoint.sh
-
-# Expose HTTP and Reverb WebSocket ports
-EXPOSE 80 8080
-
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["entrypoint.sh"]
+CMD ["apache2-foreground"]

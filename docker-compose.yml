@@ -1,95 +1,47 @@
+version: '3.8'
+
 services:
-  # ---------------------------------------------------------------------------
-  # Laravel Application
-  # ---------------------------------------------------------------------------
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    pull_policy: build
+    image: notesproyects-app
+    container_name: notesproyects-app
     restart: unless-stopped
     ports:
-      - "8003:80"
-      - "8081:8080"
+      - "8080:80"
     environment:
-      # Configuracion de conexion
-      DB_CONNECTION: mysql
-      DB_HOST: db
-      DB_PORT: "3306"
-      DB_DATABASE: ${DB_DATABASE:-notesproyects}
-      DB_USERNAME: ${DB_USERNAME:-laravel}
-      DB_PASSWORD: ${DB_PASSWORD:-np_db_secret_2026}
-      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-np_root_secret_2026}
-      # Cache y Sesiones
-      REDIS_HOST: redis
-      REDIS_PORT: "6379"
-      SESSION_DRIVER: redis
-      CACHE_STORE: redis
-      QUEUE_CONNECTION: database
-    volumes:
-      - storage_uploads:/var/www/storage/app/public
-      - storage_logs:/var/www/storage/logs
-      - app_secrets:/var/secrets
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - DB_CONNECTION=mysql
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-notesproyects}
+      - DB_USERNAME=${DB_USERNAME:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-secret}
+      - RUN_MIGRATIONS=true
     depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - db
     networks:
-      - app_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/up"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
+      - notes-network
 
-  # ---------------------------------------------------------------------------
-  # MySQL 8 Database
-  # ---------------------------------------------------------------------------
   db:
     image: mysql:8.0
+    container_name: notesproyects-db
     restart: unless-stopped
+    ports:
+      - "3306:3306"
     environment:
       MYSQL_DATABASE: ${DB_DATABASE:-notesproyects}
-      MYSQL_USER: ${DB_USERNAME:-laravel}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-np_db_secret_2026}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-np_root_secret_2026}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
     volumes:
-      - db_data:/var/lib/mysql
+      - dbdata:/var/lib/mysql
     networks:
-      - app_network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-np_root_secret_2026}"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
-
-  # ---------------------------------------------------------------------------
-  # Redis (cache, sessions)
-  # ---------------------------------------------------------------------------
-  redis:
-    image: redis:7-alpine
-    restart: unless-stopped
-    command: redis-server --appendonly yes
-    volumes:
-      - redis_data:/data
-    networks:
-      - app_network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
-
-volumes:
-  db_data:
-  redis_data:
-  storage_uploads:
-  storage_logs:
-  app_secrets:      # persiste APP_KEY y claves Reverb entre reinicios
+      - notes-network
 
 networks:
-  app_network:
+  notes-network:
     driver: bridge
+
+volumes:
+  dbdata:
