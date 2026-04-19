@@ -1,4 +1,4 @@
-FROM php:8.3-apache
+FROM php:8.4-apache
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -37,7 +37,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Copy composer files and install dependencies
 COPY composer.json composer.lock ./
-RUN composer install --no-interaction --optimize-autoloader --no-dev --no-scripts
+RUN composer install --no-interaction --optimize-autoloader --no-dev --no-scripts --ignore-platform-req=php
 
 # Copy application files
 COPY . /var/www/html/
